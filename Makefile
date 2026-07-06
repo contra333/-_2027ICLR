@@ -1,6 +1,6 @@
 MAIN := main
 LATEXMK := latexmk
-PYTHON ?= /home/jin/envs/research/bin/python
+PYTHON ?= $${RESEARCH_PYTHON:-$${HOME}/envs/research/bin/python}
 
 .PHONY: all pdf watch clean cleanall gpt-context test
 

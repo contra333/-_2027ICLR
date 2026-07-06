@@ -4,7 +4,7 @@
 
 ## Current Project Context
 
-- 작업 폴더: `/home/jin/2026여름방학연구/0628논문뼈대초안`
+- 작업 폴더: `$REPO_ROOT`
 - 논문 진입점: `main.tex`
 - 본문 섹션: `sections/*.tex`
 - 표 위치: `tables/`
@@ -36,7 +36,7 @@ Codex의 주 역할은 로컬 실행이다.
 - LaTeX table 작성 및 정리
 - `results/processed/*.csv` 등 정리된 실험 결과를 읽는 재현 가능한 Python 스크립트 작성
 - matplotlib, seaborn, pandas, numpy 등을 활용한 학술용 figure 생성
-- 이 작업공간에는 figure 생성용 가상환경 `/home/jin/envs/research`가 이미 있으며, `matplotlib`, `pandas`, `numpy`가 설치되어 있다. 패키지 설치를 시도하기 전에 `/home/jin/envs/research/bin/python`을 우선 사용하고, Matplotlib 실행 시 필요하면 `MPLCONFIGDIR=/tmp/matplotlib-cache`처럼 쓰기 가능한 캐시 경로를 지정한다.
+- 이 작업공간에는 figure 생성용 가상환경 `${HOME}/envs/research`가 이미 있으며, `matplotlib`, `pandas`, `numpy`가 설치되어 있다. 패키지 설치를 시도하기 전에 `$RESEARCH_PYTHON` 또는 `${HOME}/envs/research/bin/python`을 우선 사용하고, Matplotlib 실행 시 필요하면 `MPLCONFIGDIR=/tmp/matplotlib-cache`처럼 쓰기 가능한 캐시 경로를 지정한다.
 - 생성 스크립트는 `scripts/`에 두고, 논문에 포함할 산출물은 `figures/`에 저장
 - 기본 산출물은 벡터 형식 PDF로 저장하고, SVG는 필요할 때 보조 산출물로 유지하며, PNG/JPG는 실제 raster 이미지가 필요한 경우에만 사용
 - LaTeX 컴파일, BibTeX, package, syntax, cross-reference 에러 해결

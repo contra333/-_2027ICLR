@@ -6,7 +6,7 @@
 
 **Architecture:** GitHub is the canonical versioned store for the LaTeX source, scripts, figures, tables, and curated notes. A small documentation layer gives web ChatGPT a stable entry point, and a Python script generates `docs/gpt_context.md` as a single review snapshot containing the files ChatGPT should read first.
 
-**Tech Stack:** Git, GitHub remote `https://github.com/contra333/-_2027ICLR.git`, LaTeX, Makefile, Python 3.12 standard library, `unittest`.
+**Tech Stack:** Git, GitHub remote `<PRIVATE_REPO_URL>.git`, LaTeX, Makefile, Python 3.12 standard library, `unittest`.
 
 ---
 
@@ -20,7 +20,7 @@
 - Create `scripts/build_gpt_context.py`: deterministic context builder using only Python standard library.
 - Create `tests/test_build_gpt_context.py`: tests for ordering, generated content, and recursion avoidance.
 - Modify `Makefile`: add `PYTHON`, `gpt-context`, and `test` targets while preserving existing LaTeX targets.
-- Initialize local Git in `/home/jin/2026여름방학연구/0628논문뼈대초안` and connect it to `https://github.com/contra333/-_2027ICLR.git`.
+- Initialize local Git in `$REPO_ROOT` and connect it to `<PRIVATE_REPO_URL>.git`.
 
 ## Task 1: Initialize Git Hygiene
 
@@ -91,15 +91,15 @@ Expected: Git initializes on branch `main`; `git status --short` shows source fi
 Run:
 
 ```bash
-git remote add origin https://github.com/contra333/-_2027ICLR.git
+git remote add origin <PRIVATE_REPO_URL>.git
 git remote -v
 ```
 
 Expected:
 
 ```text
-origin  https://github.com/contra333/-_2027ICLR.git (fetch)
-origin  https://github.com/contra333/-_2027ICLR.git (push)
+origin  <PRIVATE_REPO_URL>.git (fetch)
+origin  <PRIVATE_REPO_URL>.git (push)
 ```
 
 - [ ] **Step 4: Commit Git hygiene**
@@ -358,7 +358,7 @@ if __name__ == "__main__":
 Run:
 
 ```bash
-/home/jin/envs/research/bin/python -m unittest tests/test_build_gpt_context.py -v
+${HOME}/envs/research/bin/python -m unittest tests/test_build_gpt_context.py -v
 ```
 
 Expected: failure because `scripts/build_gpt_context.py` does not exist yet.
@@ -571,7 +571,7 @@ if __name__ == "__main__":
 Run:
 
 ```bash
-/home/jin/envs/research/bin/python -m unittest tests/test_build_gpt_context.py -v
+${HOME}/envs/research/bin/python -m unittest tests/test_build_gpt_context.py -v
 ```
 
 Expected: all four tests pass.
@@ -581,7 +581,7 @@ Expected: all four tests pass.
 Run:
 
 ```bash
-/home/jin/envs/research/bin/python scripts/build_gpt_context.py
+${HOME}/envs/research/bin/python scripts/build_gpt_context.py
 ```
 
 Expected:
@@ -623,7 +623,7 @@ Replace the full `Makefile` content with:
 ```makefile
 MAIN := main
 LATEXMK := latexmk
-PYTHON ?= /home/jin/envs/research/bin/python
+PYTHON ?= $${RESEARCH_PYTHON:-$${HOME}/envs/research/bin/python}
 
 .PHONY: all pdf watch clean cleanall gpt-context test
 
@@ -659,7 +659,7 @@ make gpt-context
 Expected:
 
 ```text
-/home/jin/envs/research/bin/python scripts/build_gpt_context.py
+${HOME}/envs/research/bin/python scripts/build_gpt_context.py
 docs/gpt_context.md
 ```
 
@@ -845,7 +845,7 @@ Use this exact prompt:
 ```text
 You are reviewing my ICLR-style ML paper repository.
 
-Repository: https://github.com/contra333/-_2027ICLR
+Repository: <PRIVATE_REPO_URL>
 
 First read README_FOR_GPT.md and docs/gpt_context.md. Treat docs/gpt_context.md as the current review bundle, but treat the source files as authoritative if there is any mismatch.
 
@@ -899,7 +899,7 @@ Expected:
 - `make test` passes.
 - `git status --short` is empty after committing.
 - `git log --oneline --max-count=8` shows the workflow commits.
-- `git remote -v` points to `https://github.com/contra333/-_2027ICLR.git`.
+- `git remote -v` points to `<PRIVATE_REPO_URL>.git`.
 
 ## Self-Review
 

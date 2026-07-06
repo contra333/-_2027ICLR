@@ -5,7 +5,7 @@
 ## 빠른 컴파일
 
 ```bash
-cd /home/jin/2026여름방학연구/0628논문뼈대초안
+cd $REPO_ROOT
 make
 ```
 
