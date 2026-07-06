@@ -1,134 +1,92 @@
 \subsection{Optimizer-Induced Neural Collapse and Feature Geometry}
 \label{subsec:optimizer-geometry}
 
-Neural Collapse provides a geometric description of the terminal phase of
-supervised training, in which penultimate features, class means, and classifier
-weights approach a highly structured configuration
-\citep{papyan2020prevalence}. This perspective is useful for reliability because
-it separates accuracy from representation geometry: two classifiers can achieve
-similar ID performance while differing in within-class compactness, class-mean
-separation, classifier--feature alignment, feature-norm structure, and covariance
-shape. Feature-based OOD detectors operate precisely on these geometric
-quantities, so changes in Neural Collapse or related feature geometry can affect
-detector behavior even when classification accuracy is comparable.
+Neural Collapse describes the terminal-phase organization of supervised
+classifiers, where penultimate features, class means, and classifier weights
+approach a structured geometry \citep{papyan2020prevalence}. This perspective is
+relevant for reliability because it separates classification performance from
+representation geometry: models with similar ID accuracy can still differ in
+within-class compactness, class separation, classifier--feature alignment,
+feature norms, and covariance structure.
 
 Recent work shows that this geometry is not optimizer invariant.
 \citet{zhao2026optimizer} demonstrate that optimizer choice and weight-decay
 coupling affect the emergence of Neural Collapse, with SGD, Adam, and AdamW
-exhibiting different collapse behavior. This is closely related to the distinction
-between coupled and decoupled weight decay \citep{loshchilov2019decoupled}. In
-SGD-like optimizers, coupled and decoupled decay can be relatively similar in
-their practical effect, whereas in adaptive optimizers the distinction can change
-the implicit bias of training. Our work builds on this optimizer-to-geometry
-view, but studies the next step: how geometry differences induced by SGD, SGDW,
-Adam, and AdamW are inherited by downstream OOD detector families.
+exhibiting different collapse behavior. This is closely related to the
+distinction between coupled and decoupled weight decay
+\citep{loshchilov2019decoupled}. Our work uses this optimizer-to-geometry view as
+a starting point, but studies the next link in the chain: how optimizer-induced
+penultimate geometry is inherited by downstream uncertainty and OOD detector
+families.
 
-\subsection{Feature-Based OOD Detectors as Geometry Readouts}
-\label{subsec:feature-based-ood-readouts}
+\subsection{OOD Detectors and Representation Geometry}
+\label{subsec:ood-detectors-representation-geometry}
 
-OOD detection methods assign scores intended to separate ID-like inputs from
-unreliable or out-of-distribution inputs. Logit-based scores such as MSP,
-MaxLogit, and Energy read output confidence, logit scale, and margin structure
-\citep{hendrycks2017baseline,liu2020energy}. They are useful and often strong
-baselines, but they do not directly model the geometry of the penultimate feature
-space.
+OOD detectors assign scores that separate ID-like samples from unreliable or
+distribution-shifted inputs. Logit-based scores such as MSP, MaxLogit, and Energy
+read output confidence, logit scale, and margin structure
+\citep{hendrycks2017baseline,liu2020energy}. Feature-based detectors instead
+operate on the penultimate representation. Mahalanobis scoring uses class means
+and covariance estimates \citep{lee2018simple}; kNN uses distances to an ID
+feature bank \citep{sun2022knn}; DDU-style Gaussian feature-density scores use
+post-hoc density estimates in feature space \citep{mukhoti2021ddu}; and angular
+or Neural-Collapse-based methods such as CTM and NeCo use classifier, prototype,
+or subspace structure \citep{nguyen2023ctm,benammar2023neco}.
 
-Feature-based detectors instead read different geometric channels of the learned
-representation. Mahalanobis scoring fits class means and covariance estimates and
-uses a precision-weighted distance to the closest class center
-\citep{lee2018simple}. kNN scoring compares a query feature to a bank of ID
-training features and is therefore sensitive to local neighborhood spacing,
-feature normalization, and local density structure \citep{sun2022knn}. DDU-style
-Gaussian density scores fit class-conditional feature densities and read both
-distance-to-mean and covariance-volume information \citep{mukhoti2021ddu}.
-Angular detectors such as CTM use cosine similarity to class-typical feature
-directions \citep{nguyen2023ctm}, while Neural-Collapse-based detectors such as
-NeCo use prototype, class-mean, and principal-component structure
-\citep{benammar2023neco}. These detectors are therefore not interchangeable
-scoring rules: each one reads a different projection of the optimizer-induced
-feature geometry.
+We do not treat these methods as interchangeable scoring rules. Instead, we use
+them as detector families that read different aspects of the learned
+representation. The detailed readout map is given in
+Section~\ref{sec:method}; here the important point is that optimizer-induced
+changes in penultimate geometry can affect detector families differently.
 
-This readout view is central to our paper. If an optimizer changes feature norms,
-raw distance detectors can change even when angular structure is preserved. If it
-changes covariance anisotropy or conditioning, Gaussian density and
-Mahalanobis-style scores can change even when class means remain separated. If it
-changes class-mean directions, classifier alignment, or residual subspaces,
-angular and collapse-based scores can change even when raw distance-based scores
-appear stable. We therefore organize detectors by the geometry channel they read,
-rather than by treating all OOD scores as a single benchmark list.
-
-\subsection{Normalization, Covariance, and Subspace Controls}
+\subsection{Normalization, Covariance Estimation, and Subspace Controls}
 \label{subsec:normalization-covariance-controls}
 
-Feature-space preprocessing can substantially change the behavior of
-feature-based detectors. In particular, L2 normalization removes radial
-feature-norm variation and turns Euclidean comparisons into angular comparisons.
-This is important because normalized kNN is often a strong practical variant, and
-normalization can also improve Mahalanobis-style scoring when raw feature norms
-distort covariance estimates. In our framework, however, the purpose of raw and
-normalized variants is not only to compare detector performance. The comparison
-itself is diagnostic: raw Mahalanobis and raw kNN expose radial or norm-coupled
-geometry, while L2-normalized versions test whether the detector gap remains once
-that radial channel is removed.
+Feature-space preprocessing can substantially change feature-based OOD scores.
+Normalization can remove feature-norm effects and alter distance-based scoring;
+covariance estimation choices can change Mahalanobis and Gaussian density scores;
+and PCA or residual-space projections can change which feature directions are
+available to a detector. Prior work on feature-based OOD detection and
+representation preprocessing motivates these controls, especially in regimes
+where raw feature geometry is poorly conditioned or contains nuisance variation.
 
-Covariance-side controls play a complementary role. Mahalanobis and
-DDU-style Gaussian density scores depend on covariance estimates, and these
-estimates can be sensitive to feature dimension, sample size, anisotropy, and
-conditioning. Tied covariance, diagonal covariance, and shrinkage covariance
-therefore provide different probes of the same feature distribution. If shrinkage
-or diagonalization recovers a detector gap, the failure may be tied to covariance
-estimation or ill-conditioning. If the gap remains, the mismatch is more likely
-to involve broader representation geometry, such as class overlap, radial
-variation, or subspace structure.
-
-PCA-based controls provide another way to separate geometry channels. Projecting
-features onto a low-dimensional principal subspace can remove nuisance
-directions, while residual-space scores can test whether OOD samples occupy
-directions not used by the ID class structure. These transformations are not
-introduced here as new detector proposals. Instead, we use them as diagnostic
-interventions that help localize whether optimizer-induced detector changes are
-carried by radial, covariance, angular, or subspace channels.
+In this paper, these operations are not proposed as new detector methods. They
+are used as diagnostic controls: normalization probes radial structure,
+covariance variants probe estimation and conditioning, and subspace projections
+probe principal or residual feature directions. The formal definitions and score
+conventions are deferred to Section~\ref{sec:method} and the appendix.
 
 \subsection{Representation-Centric Detector Selection}
 \label{subsec:representation-centric-detector-selection}
 
-Recent representation-centric analyses argue that detector rankings are not fixed
-properties of score formulas. They can change with architecture, training
+Recent representation-centric analyses argue that OOD detector rankings are not
+fixed properties of score formulas. They can change with architecture, training
 paradigm, source dataset, representation geometry, and OOD severity
 \citep{olivares2025systematic}. This perspective is important for our setting
 because optimizer choice is a training-side intervention that can reshape the
-representation seen by every downstream detector. A detector that is competitive
-under one optimizer-induced geometry may become less reliable under another, not
-because the detector formula is intrinsically weak, but because the geometry it
-expects has been distorted, masked, or replaced by a different feature regime.
+representation exposed to every downstream detector.
 
-Our work follows this representation-centric view but focuses on a different
-source of variation. Rather than varying detector design or training paradigm
-broadly, we isolate optimizer choice and weight-decay coupling as mechanisms that
-shape penultimate geometry. We then ask whether Neural Collapse metrics,
-feature-norm statistics, within-class dispersion, class separation, covariance
-spectra, effective rank, and local feature-bank structure can explain or predict
-which detector family will work. This turns detector selection into a
-geometry-aware diagnostic problem: before choosing a feature-based OOD detector,
-one should first inspect the geometry that the trained model exposes to that
-detector.
+Our work follows this representation-centric view but focuses on a narrower
+source of variation. Rather than broadly varying detector design or training
+paradigm, we isolate optimizer choice and weight-decay coupling as mechanisms
+that shape penultimate geometry. We then ask whether the resulting geometry
+fingerprints explain which detector families remain compatible with the trained
+representation.
 
 \subsection{Positioning of Our Work}
 \label{subsec:positioning}
 
-Prior work provides the components of our argument. Neural Collapse studies show
-that final-layer and penultimate features can organize into measurable geometric
-structures. Optimizer studies show that this geometry can depend on the training
-rule and the coupling of weight decay. Feature-based OOD detectors rely on class
-means, covariance, neighborhoods, densities, prototypes, or subspaces.
-Representation-centric benchmarks show that detector rankings shift when the
-learned representation changes.
+Prior work provides the components of our argument: Neural Collapse studies give
+measurable summaries of penultimate geometry; optimizer studies show that this
+geometry can depend on the training rule; feature-based OOD methods rely on
+representation-side structure; and representation-centric benchmarks show that
+detector rankings shift across learned representations.
 
 The missing link is the optimizer--geometry--detector pathway. We study this
 pathway directly by treating SGD, SGDW, Adam, and AdamW as geometry interventions
-and by evaluating how their induced penultimate representations are read by
-logit-based, distance-based, density-based, neighborhood-based, angular, and
-Neural-Collapse-based detectors. The contribution is not another OOD scoring rule
-and not a generic optimizer leaderboard. It is a geometry--detector compatibility
-framework: optimizer choice should be evaluated jointly with the penultimate
-geometry it induces and the detector family that will read that geometry.
+and by evaluating how their induced representations are read by downstream
+detector families. The goal is not to propose another OOD score or to build an
+optimizer leaderboard. The goal is to characterize geometry--detector
+compatibility: optimizer choice should be evaluated jointly with the
+penultimate geometry it induces and the detector family that will read that
+geometry.

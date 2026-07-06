@@ -2,10 +2,10 @@ This section develops the mechanism used in the rest of the paper. We do not
 attempt to prove full Neural Collapse convergence for deep networks. Existing
 work already shows that optimizer choice and weight-decay coupling can change
 Neural Collapse behavior \citep{zhao2026optimizer,loshchilov2019decoupled}. Our
-goal is different: we use optimizer update rules to derive testable predictions
-about the penultimate feature geometry that OOD detectors read. The resulting
-framework connects three objects:
-optimization rules, detector-relevant geometry channels, and diagnostic controls.
+goal is different: we turn optimizer update rules into testable predictions about
+the penultimate feature geometry that OOD detector families read. The resulting
+framework connects three objects: optimization rules, detector-relevant geometry
+channels, and diagnostic controls.
 
 \subsection{Setup and claim boundary}
 \label{subsec:setup-claim-boundary}
@@ -17,44 +17,15 @@ and a linear classifier,
     \label{eq:classifier-decomposition}
 \end{equation}
 where \(h(x)\in\mathbb{R}^d\), \(W\in\mathbb{R}^{K\times d}\), and
-\(z(x)\in\mathbb{R}^K\). Let \(\mathcal{D}_{\mathrm{tr}}\) be the ID training
-set and let \(\mathcal{D}_c\subset\mathcal{D}_{\mathrm{tr}}\) denote the subset
-of class \(c\). For a trained model, define the class mean
-\begin{equation}
-    \mu_c
-    =
-    \frac{1}{|\mathcal{D}_c|}
-    \sum_{(x_i,y_i)\in\mathcal{D}_c}
-    h(x_i),
-    \label{eq:class-mean-section3}
-\end{equation}
-and decompose each feature into a class mean and a residual,
-\begin{equation}
-    h_i = \mu_{y_i}+\varepsilon_i.
-    \label{eq:feature-residual-decomposition}
-\end{equation}
-The class-conditional covariance is
-\begin{equation}
-    \Sigma_c
-    =
-    \frac{1}{|\mathcal{D}_c|-1}
-    \sum_{(x_i,y_i)\in\mathcal{D}_c}
-    \varepsilon_i\varepsilon_i^\top,
-    \label{eq:class-covariance-section3}
-\end{equation}
-and the pooled within-class covariance is
-\begin{equation}
-    \Sigma_W
-    =
-    \frac{1}{K}
-    \sum_{c=1}^K \Sigma_c.
-    \label{eq:pooled-covariance-section3}
-\end{equation}
+\(z(x)\in\mathbb{R}^K\). For ID training features, let \(\mu_c\) denote the
+class mean of class \(c\), let each feature be decomposed as
+\(h_i=\mu_{y_i}+\varepsilon_i\), and let \(\Sigma_c\) and \(\Sigma_W\) denote the
+class-conditional and pooled within-class covariances. The feature residuals
+\(\varepsilon_i\), their covariance, the class means, and the classifier weights
+are the quantities through which feature-based OOD detectors interact with a
+trained model.
 
-The feature residuals \(\varepsilon_i\), their covariance \(\Sigma_c\), the class
-means \(\mu_c\), and the classifier weights \(W\) are the quantities through
-which feature-based OOD detectors interact with the trained model. We summarize
-them by a geometry fingerprint
+We summarize these quantities by a geometry fingerprint
 \begin{equation}
     G(h,W)
     =
@@ -76,12 +47,13 @@ covariance spectra, anisotropy, condition number, and effective rank;
 structure.
 
 This section provides a mechanistic framework rather than a complete convergence
-theory. The analysis uses local linearization or peeled-feature approximations
-to identify which geometry channels should move under different optimizers.
+theory. The analysis uses update-level and locally linearized arguments to
+identify which geometry channels should move under different optimizers.
 Section~\ref{sec:experiments} then tests these predictions across architectures,
-optimizers, detectors, and diagnostic controls.
+optimizers, detectors, and diagnostic controls. Full algebraic details are given
+in Appendix~\ref{app:mechanistic-derivations}.
 
-\subsection{Optimizer update rules as geometry interventions}
+\subsection{Weight-decay coupling as a geometry intervention}
 \label{subsec:optimizer-update-geometry}
 
 We treat optimizer choice as a training-side intervention on the geometry in
@@ -104,46 +76,20 @@ interpolation between coupled and decoupled decay:
     \label{eq:coupled-decoupled-interpolation-section3}
 \end{equation}
 The coupled term is included in the gradient update, whereas the decoupled term
-is applied as a separate parameter shrinkage. For a parameter block \(\theta\),
-we write the abstract update as
-\begin{equation}
-    g_t^{(\gamma)}
-    =
-    \nabla_\theta \mathcal{L}(\theta_t)
-    +
-    \lambda_{\mathrm{coupled}}\theta_t,
-    \label{eq:coupled-gradient-section3}
-\end{equation}
-\begin{equation}
-    \theta_{t+1}
-    =
-    (1-\eta_t\lambda_{\mathrm{decoupled}})\theta_t
-    -
-    \eta_t\mathcal{P}_t(g_t^{(\gamma)}),
-    \label{eq:unified-optimizer-update-section3}
-\end{equation}
-where \(\mathcal{P}_t\) denotes the optimizer-specific momentum or
-preconditioning operator. In the Adam family, \(\gamma=0\) corresponds to AdamW
-and \(\gamma=1\) corresponds to Adam with coupled L2 regularization.
+is applied as a separate parameter shrinkage. In the Adam family, \(\gamma=0\)
+corresponds to AdamW and \(\gamma=1\) corresponds to Adam with coupled L2
+regularization.
 
-\paragraph{Proposition 1: coupled and decoupled decay differ under adaptive preconditioning.}
-For a non-adaptive optimizer without momentum, coupled L2 decay and decoupled
-weight decay induce the same first-order update:
-\begin{equation}
-    \theta_{t+1}
-    =
-    \theta_t-\eta_t\nabla_\theta\mathcal{L}(\theta_t)-\eta_t\lambda\theta_t.
-    \label{eq:sgd-sgdw-equivalence-section3}
-\end{equation}
-Under an adaptive diagonal preconditioner \(D_t\), however, Adam and AdamW differ
-in whether the regularization term is preconditioned:
+The key distinction is whether the decay term is seen through the optimizer's
+adaptive geometry. With a diagonal adaptive preconditioner \(D_t\), the coupled
+Adam update has the approximate form
 \begin{equation}
     \theta_{t+1}^{\mathrm{Adam}}
     \approx
     \theta_t-\eta_tD_t\bigl(\nabla_\theta\mathcal{L}(\theta_t)+\lambda\theta_t\bigr),
     \label{eq:adam-coupled-preconditioned-section3}
 \end{equation}
-whereas
+whereas the decoupled AdamW update has the approximate form
 \begin{equation}
     \theta_{t+1}^{\mathrm{AdamW}}
     \approx
@@ -151,303 +97,66 @@ whereas
     \label{eq:adamw-decoupled-preconditioned-section3}
 \end{equation}
 Thus Adam applies weight decay in the preconditioned geometry, while AdamW
-applies weight decay in raw parameter space.
+applies weight decay in raw parameter space. This difference can change
+direction-dependent contraction in the penultimate representation, affecting
+within-class dispersion, covariance eigenspectra, feature-norm statistics, and
+Neural-Collapse-related alignment even when ID accuracy is similar. The
+AdamW-to-Adam interpolation in Eq.~\eqref{eq:coupled-decoupled-interpolation-section3}
+therefore provides a controlled path for testing whether geometry and detector
+behavior move along the weight-decay-coupling axis.
 
-This proposition is not intended as a new Neural Collapse theorem. Rather, it
-identifies the update-level mechanism that can create different feature
-geometries even when the scalar weight decay and ID accuracy are comparable. In
-particular, the AdamW-to-Adam interpolation in
-Eq.~\eqref{eq:coupled-decoupled-interpolation-section3} provides a controlled
-path for testing whether geometry and detector behavior move along the
-weight-decay-coupling axis.
-
-\subsection{Penultimate residual and covariance dynamics}
-\label{subsec:residual-covariance-dynamics}
-
-We now connect the optimizer update to penultimate feature geometry. Consider a
-terminal-phase or locally linearized regime in which the feature residual
-\(\varepsilon_i\) of a class-\(c\) sample evolves approximately under a local
-curvature operator \(B_{c,t}\):
-\begin{equation}
-    \nabla_{h_i}\mathcal{L}
-    \approx
-    B_{c,t}\varepsilon_{i,t}.
-    \label{eq:feature-gradient-local-linearization}
-\end{equation}
-This approximation is exact in a simple peeled-feature quadratic model and is
-used here as a first-order description of the detector-relevant residual
-geometry in deep networks.
-
-Under this approximation, the residual update takes different forms under
-different optimizers. For SGD or SGDW,
-\begin{equation}
-    \varepsilon_{i,t+1}^{\mathrm{SGD/SGDW}}
-    \approx
-    \bigl(I-\eta_t(B_{c,t}+\lambda I)\bigr)\varepsilon_{i,t}.
-    \label{eq:residual-sgd-section3}
-\end{equation}
-For coupled Adam,
-\begin{equation}
-    \varepsilon_{i,t+1}^{\mathrm{Adam}}
-    \approx
-    \bigl(I-\eta_tD_t^h(B_{c,t}+\lambda I)\bigr)\varepsilon_{i,t},
-    \label{eq:residual-adam-section3}
-\end{equation}
-where \(D_t^h\) is the effective feature-side preconditioner induced by the
-optimizer and the local Jacobian. For AdamW,
-\begin{equation}
-    \varepsilon_{i,t+1}^{\mathrm{AdamW}}
-    \approx
-    \bigl(I-\eta_t(\lambda I+D_t^hB_{c,t})\bigr)\varepsilon_{i,t}.
-    \label{eq:residual-adamw-section3}
-\end{equation}
-
-\paragraph{Proposition 2: optimizer-specific covariance recurrence.}
-Under the local residual approximation above, the within-class covariance evolves
-as
-\begin{equation}
-    \Sigma_{c,t+1}
-    \approx
-    M_{c,t}\Sigma_{c,t}M_{c,t}^{\top},
-    \label{eq:covariance-recurrence-section3}
-\end{equation}
-with
-\begin{equation}
-    M_{c,t}^{\mathrm{SGD/SGDW}}
-    =
-    I-\eta_t(B_{c,t}+\lambda I),
-    \label{eq:m-sgd-section3}
-\end{equation}
-\begin{equation}
-    M_{c,t}^{\mathrm{Adam}}
-    =
-    I-\eta_tD_t^h(B_{c,t}+\lambda I),
-    \label{eq:m-adam-section3}
-\end{equation}
-and
-\begin{equation}
-    M_{c,t}^{\mathrm{AdamW}}
-    =
-    I-\eta_t(\lambda I+D_t^hB_{c,t}).
-    \label{eq:m-adamw-section3}
-\end{equation}
-Consequently, Adam and AdamW can contract the same residual directions at
-different rates. These direction-dependent contraction rates can change
-within-class dispersion, covariance eigenspectra, anisotropy, effective rank,
-and feature-norm dispersion, even when the final ID accuracy is similar.
-
-This proposition gives the main optimizer-to-geometry bridge in the paper. It
-predicts that optimizer differences should not be visible only in scalar NC
-metrics. They should also appear in the covariance spectrum, feature norm
-statistics, local feature-bank spacing, and subspace structure. These are exactly
-the quantities that feature-based OOD detectors read.
-
-\subsection{Geometry channels read by OOD detectors}
+\subsection{Detector families as geometry readouts}
 \label{subsec:geometry-channels-detectors}
 
-The preceding subsection explains why optimizer choice can move feature
-geometry. We now identify how those geometry changes enter common detector
-families. Table~\ref{tab:readout-map} summarizes the detector families and the
-channels they read.
+Feature-based OOD detectors read different channels of the geometry in
+Eq.~\eqref{eq:geometry-fingerprint-section3}. Distance-based detectors read class
+centers and radial scale; density-based detectors read covariance and volume;
+neighborhood detectors read local feature-bank spacing; angular detectors read
+prototype or classifier directions; and subspace detectors read principal or
+residual feature directions. Table~\ref{tab:readout-map} summarizes this readout
+view.
 
 \input{tables/tab_readout_map}
 
-\paragraph{Distance and neighborhood readouts.}
-Raw Euclidean distances mix radial feature norm and angular structure. Let
-\(h=ru\) and \(h'=r'u'\), where \(\|u\|_2=\|u'\|_2=1\). Then
-\begin{equation}
-    \|h-h'\|_2^2
-    =
-    r^2+(r')^2-2rr'\langle u,u'\rangle.
-    \label{eq:raw-distance-radial-angular-section3}
-\end{equation}
-After L2 normalization,
-\begin{equation}
-    \|\widehat h-\widehat h'\|_2^2
-    =
-    2-2\langle u,u'\rangle,
-    \qquad
-    \widehat h=\frac{h}{\|h\|_2+\epsilon}.
-    \label{eq:l2-distance-angular-section3}
-\end{equation}
-Thus raw kNN and raw distance-based detectors read both feature norm and angular
-neighborhood structure, whereas L2-normalized variants remove the radial channel.
-This makes raw and L2-normalized versions useful as a diagnostic pair: a large
-raw gap that disappears after L2 normalization indicates a radial or
-norm-coupled failure channel.
+This table is a framework map, not an empirical result. It clarifies why
+optimizer-induced geometry changes need not affect all detectors in the same
+direction. A representation can remain compatible with logit or angular readouts
+while becoming poorly matched to raw distance or covariance readouts. Conversely,
+a detector-side intervention can improve one family while leaving another
+unchanged because it removes only the geometry channel that the first family
+uses. Full score definitions and score-direction conventions are given in
+Appendix~\ref{app:detector-scores}.
 
-\paragraph{Precision and density readouts.}
-Mahalanobis scoring uses a precision-weighted distance:
-\begin{equation}
-    S_{\mathrm{Maha}}(x)
-    =
-    -
-    \min_c
-    (h(x)-\mu_c)^\top
-    \Sigma_W^{-1}
-    (h(x)-\mu_c).
-    \label{eq:maha-score-section3}
-\end{equation}
-DDU-style Gaussian feature-density scoring uses class-conditional densities:
-\begin{equation}
-    S_{\mathrm{GMM}}(x)
-    =
-    \log
-    \sum_{c=1}^{K}
-    \pi_c
-    \mathcal{N}\bigl(h(x)\mid\mu_c,\widehat{\Sigma}_c\bigr).
-    \label{eq:gmm-score-section3}
-\end{equation}
-For a fixed class component, the covariance-sensitive part is
-\begin{equation}
-    -\frac{1}{2}
-    (h-\mu_c)^\top
-    \Sigma_c^{-1}
-    (h-\mu_c)
-    -
-    \frac{1}{2}\log|\Sigma_c|.
-    \label{eq:gmm-quadratic-logdet-section3}
-\end{equation}
-
-\paragraph{Proposition 3: covariance expansion reduces precision-weighted penalties.}
-If \(A^{(1)}\succeq A^{(0)}\succ 0\), then
-\begin{equation}
-    (A^{(1)})^{-1}\preceq (A^{(0)})^{-1}.
-    \label{eq:inverse-order-section3}
-\end{equation}
-Therefore, for any residual vector \(\delta\),
-\begin{equation}
-    \delta^\top(A^{(1)})^{-1}\delta
-    \le
-    \delta^\top(A^{(0)})^{-1}\delta.
-    \label{eq:precision-penalty-section3}
-\end{equation}
-Thus, if an optimizer expands detector-relevant covariance directions, samples
-aligned with those directions receive smaller Mahalanobis or Gaussian quadratic
-penalties and can become more ID-like under feature-density scores.
-
-The effect is direction dependent. In whitened coordinates, write
-\begin{equation}
-    A^{(1)}
-    =
-    (A^{(0)})^{1/2}
-    U\operatorname{diag}(\beta_i)U^\top
-    (A^{(0)})^{1/2},
-    \qquad
-    \beta_i\ge 1.
-    \label{eq:whitened-cov-expansion-section3}
-\end{equation}
-With \(\widetilde{\delta}=U^\top(A^{(0)})^{-1/2}\delta\),
-\begin{equation}
-    \delta^\top(A^{(1)})^{-1}\delta
-    =
-    \sum_i
-    \frac{\widetilde{\delta}_i^2}{\beta_i}.
-    \label{eq:directional-penalty-section3}
-\end{equation}
-The reduction from the original penalty is
-\begin{equation}
-    \sum_i
-    \left(1-\frac{1}{\beta_i}\right)
-    \widetilde{\delta}_i^2.
-    \label{eq:directional-penalty-reduction-section3}
-\end{equation}
-Thus two samples can shift by different amounts depending on their alignment
-with expanded covariance directions. This is why covariance changes can alter
-OOD ranking rather than merely rescale all scores uniformly.
-
-\paragraph{Angular and subspace readouts.}
-Angular and collapse-based detectors read different geometry channels. A generic
-prototype or CTM-style angular readout has the form
-\begin{equation}
-    S_{\mathrm{ang}}(x)
-    =
-    \max_c
-    \left\langle
-    \frac{h(x)}{\|h(x)\|_2+\epsilon},
-    a_c
-    \right\rangle,
-    \qquad
-    \|a_c\|_2=1,
-    \label{eq:angular-readout-section3}
-\end{equation}
-where \(a_c\) may be a normalized class prototype, a class-typical direction, or
-a normalized classifier direction. Such scores are less sensitive to global
-feature norm but sensitive to angular class separation and classifier--prototype
-alignment.
-
-A residual-subspace readout has the form
-\begin{equation}
-    S_{\mathrm{res}}(x)
-    =
-    -
-    \|(I-P)h(x)\|_2^2,
-    \label{eq:residual-subspace-score-section3}
-\end{equation}
-where \(P\) projects onto an ID principal subspace, a class-mean subspace, or a
-detector-specific subspace. Optimizer-induced changes in effective rank,
-principal directions, or residual energy can therefore change subspace-based OOD
-scores even when raw distances or class means appear stable.
-
-\subsection{Diagnostic controls and geometry-aware recipe}
+\subsection{Diagnostic controls}
 \label{subsec:diagnostic-recipe}
 
-The preceding analysis suggests that detector failures should be diagnosed by
-the geometry channel that carries them, not by the detector name alone. We
-therefore use three families of diagnostic controls.
+The preceding readout view suggests that detector failures should be diagnosed
+by geometry channel, not by detector name alone. We therefore use three families
+of diagnostic controls.
 
-First, L2 normalization removes the radial channel:
-\begin{equation}
-    \widehat h(x)
-    =
-    \frac{h(x)}{\|h(x)\|_2+\epsilon}.
-    \label{eq:l2-normalization-section3}
-\end{equation}
-Recovery after L2 normalization indicates that feature norm or radial
-heterogeneity is a major contributor to the raw detector gap.
+First, L2 normalization removes the radial feature-norm channel. If raw
+Mahalanobis or raw kNN degrades under one optimizer but recovers after L2
+normalization, the gap is likely carried by radial or norm-coupled geometry.
 
-Second, covariance controls probe whether failure comes from covariance
-estimation or conditioning. For shrinkage,
-\begin{equation}
-    \widehat{\Sigma}_{c,\alpha}
-    =
-    (1-\alpha)\widehat{\Sigma}_c
-    +
-    \alpha
-    \frac{\operatorname{tr}(\widehat{\Sigma}_c)}{d}I.
-    \label{eq:shrinkage-section3}
-\end{equation}
-If shrinkage or diagonalization recovers a detector gap, covariance estimation
-or conditioning is likely involved. If it does not, the mismatch is more likely
-to involve broader geometry such as norm dispersion, class overlap, or subspace
-structure.
+Second, covariance controls probe estimation and conditioning. Tied, diagonal,
+and shrinkage covariance variants test whether Gaussian feature-density or
+Mahalanobis-style failures arise from unstable covariance estimation,
+ill-conditioning, anisotropy, or broader representation mismatch.
 
-Third, PCA and residual-subspace controls test whether nuisance or residual
-directions carry the detector gap. Let \(P_k\) be a projector onto the top
-\(k\) ID principal components. We compare scores computed on \(P_k h(x)\),
-class-conditional projections, and residuals \((I-P_k)h(x)\). These controls
-separate principal ID structure from residual directions.
+Third, PCA and residual-subspace controls test whether detector gaps are carried
+by principal ID directions or residual directions. Projected features isolate the
+dominant ID subspace, while residual scores test whether samples occupy
+directions not captured by the ID class structure.
 
-These controls define a geometry-aware diagnostic recipe:
-\begin{enumerate}
-    \item Compute the geometry fingerprint \(G(h,W)\) from ID training features.
-    \item Compare raw and L2-normalized distance or neighborhood scores.
-    \item Compare full, tied, diagonal, and shrinkage covariance density scores.
-    \item Compare raw, PCA-projected, and residual-subspace scores.
-    \item Select or stress-test detector families according to the active
-    geometry channel.
-\end{enumerate}
-For example, large feature-norm dispersion together with strong L2 recovery
-suggests using L2-Mahalanobis or L2-kNN. Large covariance condition number with
-shrinkage recovery suggests a covariance-estimation failure channel. Strong
-class-mean alignment and stable prototype geometry suggest that angular or
-collapse-based detectors may be more compatible. High effective rank or large
-residual energy suggests checking PCA or residual-subspace readouts.
+These controls are not proposed as new OOD detectors. They are diagnostic
+interventions used to localize the geometry channel responsible for a detector
+gap. Formal definitions are deferred to
+Appendix~\ref{app:diagnostic-interventions}.
 
 \subsection{Testable predictions}
 \label{subsec:testable-predictions}
 
-The framework yields concrete predictions for the experiments.
+The framework yields six testable predictions for Section~\ref{sec:experiments}.
 
 \paragraph{Prediction 1: weight-decay coupling should move geometry.}
 In an AdamW-to-Adam interpolation, ID accuracy may remain comparable while
@@ -462,8 +171,8 @@ smaller than the Adam--AdamW gap under comparable training conditions.
 \paragraph{Prediction 3: radial geometry should explain raw distance failures.}
 When optimizer choice increases feature-norm dispersion or class-dependent norm
 variation, raw Mahalanobis and raw kNN should degrade more than their
-L2-normalized counterparts. L2 recovery should be strongest in regimes where
-the raw gap is radial or norm-coupled.
+L2-normalized counterparts. L2 recovery should be strongest in regimes where the
+raw gap is radial or norm-coupled.
 
 \paragraph{Prediction 4: covariance geometry should explain density failures.}
 When optimizer choice changes covariance spectra, anisotropy, condition number,
@@ -478,10 +187,14 @@ collapse-based readouts should remain compatible. When effective rank or
 residual energy changes, PCA-based and NECO-style residual diagnostics should be
 more sensitive.
 
+\paragraph{Prediction 6: ID geometry should inform detector diagnostics.}
+If the geometry fingerprint \(G(h,W)\) captures detector-relevant structure, then
+ID-only geometry measurements should help recommend which detector family or
+diagnostic control is likely to be compatible before using OOD validation data.
+
 \input{tables/tab_theory_prediction_map}
 
-Together, these predictions make the theory falsifiable. If optimizer choice
+Together, these predictions make the framework falsifiable. If optimizer choice
 changes accuracy but not the predicted geometry channels, the mechanism is not
 supported. If geometry changes but detector families do not respond according to
-their readout channel, the compatibility view is incomplete. The experiments in
-Section~\ref{sec:experiments} are designed to test both links.
+their readout channel, the compatibility view is incomplete.

@@ -1,0 +1,180 @@
+This appendix collects the algebraic details behind
+Section~\ref{sec:method}. These derivations are used to motivate testable
+predictions, not to prove full Neural Collapse convergence for deep networks.
+
+\subsection{Coupled and Decoupled Weight Decay}
+\label{app:coupled-decoupled-derivation}
+
+For a parameter block \(\theta\), let the coupled and decoupled components of a
+fixed total weight decay be
+\[
+    \lambda_{\mathrm{coupled}}
+    =
+    \gamma\lambda_{\mathrm{total}},
+    \qquad
+    \lambda_{\mathrm{decoupled}}
+    =
+    (1-\gamma)\lambda_{\mathrm{total}}.
+\]
+The coupled component enters the gradient,
+\[
+    g_t^{(\gamma)}
+    =
+    \nabla_\theta \mathcal{L}(\theta_t)
+    +
+    \lambda_{\mathrm{coupled}}\theta_t,
+\]
+whereas the decoupled component is applied as direct parameter shrinkage:
+\[
+    \theta_{t+1}
+    =
+    (1-\eta_t\lambda_{\mathrm{decoupled}})\theta_t
+    -
+    \eta_t\mathcal{P}_t(g_t^{(\gamma)}).
+\]
+Here \(\mathcal{P}_t\) denotes the optimizer-specific momentum or preconditioning
+operator.
+
+For a non-adaptive optimizer without momentum, coupled L2 decay and decoupled
+weight decay induce the same first-order update:
+\[
+    \theta_{t+1}
+    =
+    \theta_t-\eta_t\nabla_\theta\mathcal{L}(\theta_t)-\eta_t\lambda\theta_t.
+\]
+Under an adaptive diagonal preconditioner \(D_t\), however, Adam and AdamW differ
+in whether the regularization term is preconditioned:
+\[
+    \theta_{t+1}^{\mathrm{Adam}}
+    \approx
+    \theta_t-\eta_tD_t\bigl(\nabla_\theta\mathcal{L}(\theta_t)+\lambda\theta_t\bigr),
+\]
+whereas
+\[
+    \theta_{t+1}^{\mathrm{AdamW}}
+    \approx
+    (1-\eta_t\lambda)\theta_t-\eta_tD_t\nabla_\theta\mathcal{L}(\theta_t).
+\]
+Thus Adam applies weight decay in the preconditioned geometry, while AdamW
+applies weight decay in raw parameter space.
+
+\subsection{Local Residual and Covariance Dynamics}
+\label{app:local-residual-covariance-dynamics}
+
+We connect the optimizer update to penultimate feature geometry through a local
+residual approximation. Let
+\[
+    h_i = \mu_{y_i}+\varepsilon_i
+\]
+be the decomposition of a training feature into its class mean and residual.
+Consider a terminal-phase or locally linearized regime in which the feature
+residual of a class-\(c\) sample evolves approximately under a local curvature
+operator \(B_{c,t}\):
+\[
+    \nabla_{h_i}\mathcal{L}
+    \approx
+    B_{c,t}\varepsilon_{i,t}.
+\]
+This approximation is exact in a simple peeled-feature quadratic model and is
+used here only as a first-order description of detector-relevant residual
+geometry.
+
+Under this approximation, the residual update takes different forms under
+different optimizers. For SGD or SGDW,
+\[
+    \varepsilon_{i,t+1}^{\mathrm{SGD/SGDW}}
+    \approx
+    \bigl(I-\eta_t(B_{c,t}+\lambda I)\bigr)\varepsilon_{i,t}.
+\]
+For coupled Adam,
+\[
+    \varepsilon_{i,t+1}^{\mathrm{Adam}}
+    \approx
+    \bigl(I-\eta_tD_t^h(B_{c,t}+\lambda I)\bigr)\varepsilon_{i,t},
+\]
+where \(D_t^h\) is the effective feature-side preconditioner induced by the
+optimizer and the local Jacobian. For AdamW,
+\[
+    \varepsilon_{i,t+1}^{\mathrm{AdamW}}
+    \approx
+    \bigl(I-\eta_t(\lambda I+D_t^hB_{c,t})\bigr)\varepsilon_{i,t}.
+\]
+
+Let \(M_{c,t}\) denote the corresponding residual transition matrix. Then the
+within-class covariance evolves approximately as
+\[
+    \Sigma_{c,t+1}
+    \approx
+    M_{c,t}\Sigma_{c,t}M_{c,t}^{\top}.
+\]
+The transition matrices are
+\[
+    M_{c,t}^{\mathrm{SGD/SGDW}}
+    =
+    I-\eta_t(B_{c,t}+\lambda I),
+\]
+\[
+    M_{c,t}^{\mathrm{Adam}}
+    =
+    I-\eta_tD_t^h(B_{c,t}+\lambda I),
+\]
+and
+\[
+    M_{c,t}^{\mathrm{AdamW}}
+    =
+    I-\eta_t(\lambda I+D_t^hB_{c,t}).
+\]
+Consequently, Adam and AdamW can contract the same residual directions at
+different rates. These direction-dependent contraction rates can change
+within-class dispersion, covariance eigenspectra, anisotropy, effective rank,
+and feature-norm dispersion, even when the final ID accuracy is similar.
+
+\subsection{Covariance Expansion and Precision-Weighted Scores}
+\label{app:covariance-expansion-precision}
+
+Mahalanobis scoring and Gaussian feature-density scoring both contain
+precision-weighted quadratic terms. For Mahalanobis, the relevant covariance is
+typically a tied within-class covariance. For class-conditional Gaussian density,
+the relevant covariance is the class covariance.
+
+If \(A^{(1)}\succeq A^{(0)}\succ 0\), then matrix inversion reverses the
+positive-semidefinite order:
+\[
+    (A^{(1)})^{-1}\preceq (A^{(0)})^{-1}.
+\]
+Therefore, for any residual vector \(\delta\),
+\[
+    \delta^\top(A^{(1)})^{-1}\delta
+    \le
+    \delta^\top(A^{(0)})^{-1}\delta.
+\]
+Thus, if an optimizer expands detector-relevant covariance directions, samples
+aligned with those directions receive smaller Mahalanobis or Gaussian quadratic
+penalties and can become more ID-like under feature-density scores.
+
+The effect is direction dependent. In whitened coordinates, write
+\[
+    A^{(1)}
+    =
+    (A^{(0)})^{1/2}
+    U\operatorname{diag}(\beta_i)U^\top
+    (A^{(0)})^{1/2},
+    \qquad
+    \beta_i\ge 1.
+\]
+With \(\widetilde{\delta}=U^\top(A^{(0)})^{-1/2}\delta\),
+\[
+    \delta^\top(A^{(1)})^{-1}\delta
+    =
+    \sum_i
+    \frac{\widetilde{\delta}_i^2}{\beta_i}.
+\]
+The reduction from the original penalty is
+\[
+    \sum_i
+    \left(1-\frac{1}{\beta_i}\right)
+    \widetilde{\delta}_i^2.
+\]
+Thus two samples can shift by different amounts depending on their alignment
+with expanded covariance directions. This is why covariance changes can alter
+OOD ranking rather than merely rescale all scores uniformly.
