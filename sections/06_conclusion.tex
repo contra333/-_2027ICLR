@@ -1,19 +1,17 @@
 We studied optimizer choice as a geometry intervention for feature-based
-uncertainty. In an accuracy-controlled selected-configuration study with SGD,
-Adam, and AdamW, we find that comparable ID performance can hide substantial
-differences in penultimate representation geometry and detector-family behavior.
-Selected optimizers induce different fingerprints in neural-collapse geometry, feature
-norms, within-class dispersion, and class separation, and detector families read
-these fingerprints differently.
+uncertainty. The paper frames a three-step pathway: the training rule shapes the
+penultimate representation, detector families read different channels of that
+geometry, and downstream OOD behavior depends on the compatibility between the
+two. This perspective shifts the question from whether an optimizer or detector
+is globally best to whether the learned geometry supports the uncertainty
+readout being used.
 
-The clearest example is the AdamW-selected raw-distance split. These
-configurations can remain competitive under logit-based readouts while showing
-large near-OOD gaps under raw Mahalanobis and kNN. L2 normalization recovers much
-of this gap, implicating a radial or norm-coupled failure channel, whereas
-covariance shrinkage has a more limited and detector-dependent effect. These
-results support a compatibility view rather than an optimizer-good/bad ranking.
-
-The key lesson is that optimizer, penultimate representation geometry, and
-detector readout should be evaluated jointly. Feature-based uncertainty should
-therefore be evaluated as a geometry--detector compatibility problem, not as an
-accuracy-only model-selection problem.
+The practical lesson is that feature-based uncertainty should not be evaluated
+from ID accuracy alone. When a deployment pipeline relies on Mahalanobis, kNN,
+DDU-style Gaussian feature-density, angular, prototype, or subspace readouts, the
+optimizer should be assessed jointly with penultimate geometry diagnostics such
+as Neural-Collapse structure, feature norms, covariance spectra, local
+neighborhoods, and residual subspaces. Evaluating optimizer choice, learned
+geometry, and detector readout together provides a more reliable way to
+stress-test feature-based OOD detection under optimizer-induced representation
+shifts.
