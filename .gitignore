@@ -1,0 +1,41 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.xdv
+main.pdf
+iclr2026_conference.pdf
+iclr2026_conference.log
+
+# Python and local caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.matplotlib-cache/
+.pip-cache/
+.jupyter-config/
+.jupyter-data/
+.jupyter-runtime/
+.venv/
+
+# GPT exchange artifacts
+draft_for_gpt_feedback.zip
+*.zip
+
+# Large or sensitive experiment stores
+results/raw/
