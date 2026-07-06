@@ -1,56 +1,63 @@
-\subsection{Experimental Protocol and Scope}
-\label{subsec:experimental-protocol-scope}
+\subsection{Experimental Setup}
+\label{subsec:experimental-setup}
 
-The experiments are designed as a prediction-driven diagnostic study rather than
-an exhaustive OOD benchmark. Section~\ref{sec:method} predicts that optimizer
-choice changes detector-relevant penultimate geometry, and that detector
-families respond according to the geometry channel they read. We therefore
-organize the experiments around six questions: whether weight-decay coupling
-moves geometry, whether adaptive optimizers amplify the coupling gap, whether
-radial geometry explains raw distance failures, whether covariance controls
-localize density failures, whether prototype and subspace detectors are stable
-in aligned regimes, and whether ID geometry can recommend detector diagnostics.
+The experiments are designed as a controlled diagnostic study rather than an
+exhaustive OOD benchmark. Section~\ref{sec:method} argues that optimizer choice
+can change the ID geometry fingerprint \(G(h,W)\), and that downstream detector
+families respond according to the geometry channels they read. We therefore
+organize the experiments around three linked questions: whether weight-decay
+coupling changes penultimate geometry, whether detector families inherit those
+changes through different readout channels, and whether ID geometry can guide
+detector diagnostics before OOD validation.
 
 \textbf{Placeholder status.}
 The numeric values in this section are synthetic placeholders used only to
 stabilize the paper layout and figure/table pipeline. They are not experimental
-evidence and must be replaced with measured values before any submission.
+evidence and must be replaced with measured values before submission.
 
 We use CIFAR-10 as the primary ID dataset and evaluate near-OOD and far-OOD
 settings separately. The main architecture families are non-residual VGG-style
-CNNs, residual ResNet/WideResNet models, and modern ConvNeXt backbones. ViT and
-Swin are reserved for appendix robustness experiments because pretraining,
-LayerNorm, and token representations may change the optimizer--geometry
-interaction. The optimizer set is SGD, SGDW, Adam, and AdamW, with an optional
-AdamW-to-Adam interpolation at fixed total weight decay. Detector families
-include logit-based scores, distance-based feature scores, local-neighborhood
-scores, DDU-style Gaussian feature-density / GMM scores, and extended angular or
-subspace diagnostics when their score conventions are fixed.
+CNNs, residual ResNet/WideResNet models, and modern ConvNeXt backbones.
+Transformer-based architectures such as ViT and Swin are reserved for appendix
+robustness experiments, where pretraining, normalization layers, and token-based
+representations may change how optimizer effects appear. The optimizer set is
+SGD, SGDW, Adam, and AdamW, with an AdamW-to-Adam interpolation used as an
+optional mechanism sweep at fixed total weight decay.
+
+Detector families include logit-based scores, raw and L2-normalized distance
+scores, local-neighborhood scores, and DDU-style Gaussian feature-density / GMM
+scores. Angular, prototype, and subspace diagnostics are included only when
+their score conventions and implementations are fixed; otherwise, they are
+treated as extended or appendix probes. All detector scores are oriented so that
+larger values are more ID-like before AUROC, AUPR-IN, and FPR95 are computed.
+Geometry is computed from ID training features unless otherwise stated.
 
 \input{tables/tab_exp_protocol_matrix}
 
-All detector scores are oriented so that larger values are more ID-like before
-AUROC, AUPR-IN, and FPR95 are computed. Geometry is computed only from ID
-training features unless otherwise stated. This ensures that geometry-based
-diagnostics do not require OOD validation data.
+This setup is intended to separate two questions that are often conflated. First,
+do optimizers with comparable ID performance induce different penultimate
+geometry? Second, do detector families respond to those geometry differences in
+a way that matches their readout channel? The following subsections answer these
+questions without treating the result as a global optimizer ranking.
 
-\subsection{Does Weight-Decay Coupling Move Geometry Without Changing Accuracy?}
-\label{subsec:wd-coupling-interpolation-experiment}
+\subsection{Weight-Decay Coupling Changes Penultimate Geometry}
+\label{subsec:wd-coupling-changes-geometry}
 
-We first test Prediction~1 by interpolating between AdamW and Adam at fixed
-total weight decay. The interpolation parameter \(\gamma\) controls the fraction
+We first test whether weight-decay coupling acts as a geometry intervention. The
+main mechanism sweep interpolates between AdamW and Adam while keeping the total
+weight decay fixed. The interpolation parameter \(\gamma\) controls the fraction
 of weight decay applied in the coupled gradient path: \(\gamma=0\) corresponds
-to AdamW and \(\gamma=1\) corresponds to Adam. If the mechanism in
-Section~\ref{subsec:optimizer-update-geometry} is correct, ID accuracy can
-remain comparably high while NC metrics, feature-norm statistics, covariance
-spectra, and feature-detector behavior move along the coupling axis.
+to AdamW and \(\gamma=1\) corresponds to Adam. If coupling changes the update
+geometry, then ID accuracy may remain comparable while NC metrics, feature-norm
+statistics, covariance spectra, and detector behavior move along the coupling
+axis.
 
-Figure~\ref{fig:wd-coupling-interpolation} shows the planned visualization. The
+Figure~\ref{fig:wd-coupling-interpolation} gives the planned visualization. The
 left panel tracks ID accuracy, the middle panel tracks geometry summaries, and
-the right panel tracks detector-family AUROC. The expected pattern is not that
-one endpoint is universally better. Instead, the key test is whether geometry
-and detector behavior vary systematically with \(\gamma\) while ID accuracy
-changes much less.
+the right panel tracks detector-family behavior. The intended evidence is not
+that Adam or AdamW is universally better, but that the representation geometry
+changes systematically as the optimizer moves from decoupled to coupled weight
+decay.
 
 \begin{figure}[t]
 \centering
@@ -65,20 +72,8 @@ accuracy remains comparable.}
 
 \input{tables/tab_dummy_interpolation_summary}
 
-If the mechanism holds, increasing \(\gamma\) should produce a smoother geometry
-transition than a direct AdamW-versus-Adam comparison. If ID accuracy changes
-strongly with \(\gamma\), the interpolation no longer isolates geometry from
-basic model quality and should be treated as a hyperparameter sensitivity result
-rather than a clean mechanism test. If accuracy is stable but geometry does not
-move, then weight-decay coupling is not the dominant geometry intervention in
-that setting.
-
-\subsection{Is the Adam--AdamW Gap Larger Than the SGD--SGDW Gap?}
-\label{subsec:adaptive-coupling-gap-experiment}
-
-Prediction~2 states that coupled and decoupled decay should be more different
-under adaptive preconditioning than under non-adaptive SGD. We test this by
-comparing two paired gaps under matched training recipes:
+We also compare the size of the coupled-versus-decoupled gap in adaptive and
+non-adaptive optimizers. Let
 \[
     \Delta_{\mathrm{nonadapt}}
     =
@@ -89,44 +84,43 @@ comparing two paired gaps under matched training recipes:
     d\bigl(G_{\mathrm{Adam}},G_{\mathrm{AdamW}}\bigr),
 \]
 where \(d(\cdot,\cdot)\) is a standardized distance over the ID geometry
-fingerprint. We compute the same paired gap for detector-family outputs.
-
-Figure~\ref{fig:adaptive-coupling-gap} summarizes the planned comparison across
-architectures. The expected qualitative outcome is
-\(\Delta_{\mathrm{adapt}}>\Delta_{\mathrm{nonadapt}}\), especially for geometry
-channels involving covariance spectra, feature norms, NC alignment, and local
-feature-bank structure. Failure of this pattern would suggest that decoupling
-alone, rather than adaptive preconditioning, is sufficient to alter the
-geometry, or that the chosen architecture/training recipe masks the adaptive
-coupling gap.
+fingerprint. The same comparison is computed for detector-family outputs. If
+the adaptive preconditioner amplifies the effect of coupling, then the
+Adam--AdamW gap should be larger than the SGD--SGDW gap under matched training
+conditions.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig3_adaptive_coupling_gap.pdf}
-\caption{SYNTHETIC PLACEHOLDER -- DO NOT REPORT. Placeholder layout for testing
-whether the Adam--AdamW gap is larger than the SGD--SGDW gap. Values are
-synthetic placeholders. The intended figure compares standardized geometry
-distances and detector-family distances across architecture families.}
+\caption{SYNTHETIC PLACEHOLDER -- DO NOT REPORT. Placeholder layout for comparing
+the Adam--AdamW gap with the SGD--SGDW gap. Values are synthetic placeholders.
+The intended figure compares standardized geometry distances and detector-family
+distances across architecture families.}
 \label{fig:adaptive-coupling-gap}
 \end{figure}
 
-\subsection{Do Detector Families Inherit the Geometry Shift?}
-\label{subsec:detector-family-inheritance-experiment}
+If ID accuracy changes strongly along the interpolation, the sweep should be
+interpreted as a hyperparameter sensitivity study rather than a clean mechanism
+test. If ID accuracy is stable but geometry does not move, then weight-decay
+coupling is not the dominant geometry intervention in that setting.
 
-We next test whether detector families respond according to their readout
-channels. Logit-based detectors read output confidence and margins; raw
-Mahalanobis and raw kNN read radial distance, class separation, and local
-feature-bank structure; DDU-style Gaussian feature-density / GMM scores read
-covariance and density; angular and subspace diagnostics read prototype or
-residual structure.
+\subsection{Detector Families Respond Through Different Readout Channels}
+\label{subsec:detector-readout-channel-response}
+
+We next ask whether detector families inherit optimizer-induced geometry changes
+uniformly. The compatibility view predicts that they should not. Logit-based
+scores read output confidence and margins; raw Mahalanobis and raw kNN read
+radial distance, class separation, and local feature-bank structure;
+DDU-style Gaussian feature-density / GMM scores read covariance and density; and
+angular or subspace diagnostics read prototype and residual structure.
 
 Figure~\ref{fig:detector-family-delta-heatmap} reports the planned
-optimizer-relative AUROC gap heatmap. The intended reference is the matched SGD
-anchor within each architecture and dataset. Positive values indicate that the
-detector family improves relative to the anchor, and negative values indicate
-degradation. This figure should not be interpreted as an optimizer leaderboard.
-The relevant question is whether each detector family changes in the direction
-predicted by its geometry readout.
+optimizer-relative AUROC gap heatmap. The reference is the matched SGD anchor
+within each architecture and dataset. Positive values indicate that the detector
+family improves relative to the anchor, and negative values indicate
+degradation. The purpose of this figure is not to declare a winning optimizer.
+The purpose is to show whether the same representation remains compatible with
+some readouts while becoming less compatible with others.
 
 \begin{figure}[t]
 \centering
@@ -138,27 +132,28 @@ subspace readouts relative to a matched SGD anchor.}
 \label{fig:detector-family-delta-heatmap}
 \end{figure}
 
-If logit scores remain stable while raw feature-distance scores degrade, the
+A useful diagnostic pattern is a split between logit and feature readouts. If
+logit scores remain stable while raw feature-distance scores degrade, the
 optimizer has not produced a uniformly worse model. Instead, it has produced a
 representation that is less compatible with the raw distance channel. If all
 detectors degrade together, the result is more likely to reflect a broad model
 quality issue rather than a geometry--detector compatibility effect.
 
-\subsection{Does Radial Geometry Explain Raw Distance Failures?}
-\label{subsec:radial-channel-experiment}
+\subsection{Diagnostic Controls Localize Geometry Channels}
+\label{subsec:diagnostic-controls-localize-channels}
 
-Prediction~3 isolates the radial channel. We compare raw Mahalanobis and raw kNN
-against their L2-normalized counterparts using the same checkpoints, ID feature
-bank, OOD datasets, and score direction convention. L2 normalization removes
-feature-norm variation while preserving angular information. Therefore,
-recovery after L2 normalization indicates that the raw detector gap is carried
-by radial or norm-coupled geometry.
+We then use detector-side controls to localize which geometry channel carries a
+detector gap. These controls are diagnostic interventions, not proposed universal
+fixes. L2 normalization removes the radial feature-norm channel; tied, diagonal,
+and shrinkage covariance variants probe covariance estimation and conditioning;
+and PCA or residual-subspace diagnostics separate principal ID directions from
+residual directions.
 
-Figure~\ref{fig:l2-recovery-paths} shows the planned paired recovery plot. Each
-line connects the raw detector gap to the corresponding L2-normalized gap for
-the same optimizer, architecture, and OOD regime. The expected qualitative
-outcome is that optimizers with larger feature-norm dispersion show larger raw
-distance degradation and stronger L2 recovery.
+The radial-channel diagnostic compares raw Mahalanobis and raw kNN against their
+L2-normalized counterparts using the same checkpoints, ID feature bank, OOD
+datasets, and score direction convention. Recovery after L2 normalization
+indicates that the raw detector gap is carried by radial or norm-coupled
+geometry.
 
 \begin{figure}[t]
 \centering
@@ -170,89 +165,63 @@ failure channel.}
 \label{fig:l2-recovery-paths}
 \end{figure}
 
-If raw gaps remain after L2 normalization, radial scale is not sufficient to
-explain the detector behavior. The remaining gap should then be analyzed through
-covariance, local density, class overlap, or subspace structure.
-
-\subsection{Are Covariance Failures Localized by Covariance Controls?}
-\label{subsec:covariance-channel-experiment}
-
-Prediction~4 tests whether covariance geometry explains failures of
-Mahalanobis-style and DDU-style Gaussian feature-density / GMM readouts. We
+Covariance controls test a different failure mode. Mahalanobis-style and
+DDU-style Gaussian feature-density / GMM readouts depend on inverse covariance,
+covariance volume, and the stability of covariance estimates. We therefore
 compare full, tied, diagonal, shrinkage, and PCA-projected covariance variants.
-These interventions are not new detector proposals; they are controls for
-identifying whether the failure arises from covariance estimation,
-ill-conditioning, anisotropy, or broader feature geometry.
+If shrinkage or diagonalization reduces the detector gap, the failure likely
+involves unstable covariance estimation or ill-conditioning. If PCA projection
+helps while shrinkage does not, the mismatch may be concentrated in nuisance or
+residual directions.
 
 \input{tables/tab_dummy_covariance_controls}
 
-If shrinkage or diagonal covariance reduces the detector gap, the failure likely
-involves unstable covariance estimation or ill-conditioning. If PCA projection
-helps while shrinkage does not, the failure may be concentrated in nuisance or
-residual directions. If none of the covariance controls help, then the mismatch
-is likely not a covariance-estimation problem alone; class overlap, radial
-geometry, or subspace structure may dominate.
-
-\subsection{Do Prototype and Subspace Diagnostics Track NC-Aligned Regimes?}
-\label{subsec:prototype-subspace-experiment}
-
-Prediction~5 concerns angular, prototype, and subspace readouts. These
-diagnostics are reported in the main text only when their score conventions are
-fixed. Otherwise, they are treated as appendix probes. The planned analysis
-compares NC alignment, class-mean angular structure, classifier--feature
-alignment, effective rank, PCA explained variance, and residual energy against
-CTM-style, NECO-style, prototype-cosine, and residual-subspace scores.
-
-Figure~\ref{fig:prototype-subspace-alignment} shows the planned visualization.
-The expected qualitative outcome is that angular or prototype detectors become
-more stable when class-mean geometry and classifier alignment are strong, while
-residual or PCA-based detectors become more informative when effective rank or
-residual energy changes substantially.
+Angular, prototype, and subspace diagnostics are included when their score
+conventions are fixed. The planned analysis compares NC alignment, class-mean
+angular structure, classifier--feature alignment, effective rank, PCA explained
+variance, and residual energy against CTM-style, NECO-style, prototype-cosine,
+and residual-subspace scores. If these diagnostics do not follow NC or subspace
+measurements, the score convention, PCA dimension, class-selection rule, or
+implementation should be checked before interpreting the result as a failure of
+the framework.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/fig6_prototype_subspace_alignment.pdf}
 \caption{SYNTHETIC PLACEHOLDER -- DO NOT REPORT. Placeholder prototype/subspace
-diagnostic plot. Values are synthetic placeholders. The intended analysis
-relates NC alignment, effective rank, and residual energy to CTM-style,
-NECO-style, prototype, and residual-subspace readouts.}
+diagnostic plot. Values are synthetic placeholders. The intended analysis relates
+NC alignment, effective rank, and residual energy to CTM-style, NECO-style,
+prototype, and residual-subspace readouts.}
 \label{fig:prototype-subspace-alignment}
 \end{figure}
 
-If CTM- or NECO-style diagnostics do not follow NC or subspace measurements, the
-score convention, PCA dimension, class-selection rule, or detector
-implementation must be rechecked before interpreting the result as a failure of
-the theory.
+Together, the radial, covariance, and subspace controls test whether detector
+failures are explained by specific geometry channels or whether they reflect a
+broader representation mismatch.
 
-\subsection{Can ID Geometry Recommend Detector Diagnostics?}
-\label{subsec:geometry-aware-diagnostic-selector}
+\subsection{Geometry Fingerprints as Detector Diagnostics}
+\label{subsec:geometry-fingerprints-detector-diagnostics}
 
-Prediction~6 asks whether ID-only geometry can recommend a detector family or
-diagnostic control before using OOD validation data. We first evaluate a simple
-rule-based selector because it is easier to interpret than a learned model. The
-rules are intentionally diagnostic: high norm dispersion recommends L2-based
-controls, poor covariance conditioning recommends shrinkage or diagonal
-covariance, strong NC alignment recommends angular or prototype diagnostics, and
-large residual energy recommends PCA or residual-subspace probes.
+Finally, we ask whether ID-only geometry can guide detector diagnostics before
+using OOD validation data. This is a diagnostic goal rather than a claim that ID
+geometry fully determines OOD performance. The simplest version is a rule-based
+selector: high norm dispersion recommends L2-based controls, poor covariance
+conditioning recommends shrinkage or diagonal covariance, strong NC alignment
+recommends angular or prototype diagnostics, and large residual energy
+recommends PCA or residual-subspace probes.
 
 \input{tables/tab_dummy_geometry_selector}
 
 A learned selector can be evaluated after enough architecture--optimizer--seed
-cells are available. The target should not be the single best detector on one
-OOD dataset. A more stable target is a detector family or control type that is
-statistically competitive across OOD regimes. If the selector fails, then either
-the fingerprint \(G(h,W)\) is missing important geometry channels, or OOD
-severity information is necessary to choose a detector reliably.
+cells are available. The target should not be the single best detector on one OOD
+dataset. A more stable target is a detector family or control type that remains
+competitive across OOD regimes. If the selector fails, then either the fingerprint
+\(G(h,W)\) is missing important geometry channels, or OOD severity information is
+necessary to choose a detector reliably.
 
-\subsection{Summary of the Experimental Logic}
-\label{subsec:experimental-logic-summary}
-
-The experiments are designed to test both links in the
-optimizer--geometry--detector pathway. The interpolation and paired optimizer
-comparisons test whether optimizer choice moves the predicted ID geometry
-channels. The detector-family and diagnostic-control experiments test whether
-downstream scores respond according to their readout channel. The
-geometry-aware selector then tests whether the same ID geometry fingerprint is
-informative before OOD validation. Together, these experiments support or
-falsify the compatibility view without requiring the paper to claim that one
-optimizer or one detector is universally best.
+The experiments therefore test both links in the optimizer--geometry--detector
+pathway. The interpolation and paired optimizer comparisons test whether
+optimizer choice moves the predicted ID geometry channels. The detector-family
+and diagnostic-control analyses test whether downstream scores respond according
+to their readout channel. The geometry-aware diagnostic analysis tests whether
+the same ID fingerprint can be useful before OOD validation.
