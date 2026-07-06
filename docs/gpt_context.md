@@ -5,19 +5,14 @@ Use it as the first-read bundle for web ChatGPT review. Source files remain auth
 
 ## Snapshot
 
-- Generated at: 2026-07-06 07:08:18 UTC
+- Generated at: 2026-07-06 07:12:21 UTC
 - Git branch: main
-- Git commit: 7864ee3
+- Git commit: d116ce5
 
 ## Git Status
 
 ```text
-M AGENTS.md
- M Makefile
- M README.md
- M docs/gpt_context.md
- M docs/superpowers/plans/2026-07-06-gpt-readable-paper-repo.md
- M figures/README.md
+(empty)
 ```
 
 ## Binary Artifact Index
