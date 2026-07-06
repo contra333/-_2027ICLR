@@ -98,33 +98,36 @@ are interventions used to localize which geometry channel carries a detector
 gap. Full score definitions and implementation conventions are given in
 Appendices~\ref{app:detector-scores} and~\ref{app:diagnostic-interventions}.
 
-\subsection{Empirical hypotheses}
-\label{subsec:empirical-hypotheses}
+\subsection{Empirical questions}
+\label{subsec:empirical-questions}
 
-The framework leads to three empirical hypotheses.
+The framework leads to three empirical questions that structure the experiments.
 
-\paragraph{H1: weight-decay coupling changes ID geometry, especially under adaptive optimizers.}
-If coupled and decoupled decay induce different update geometries, then the
-AdamW-to-Adam interpolation should move the ID geometry fingerprint while ID
-accuracy remains comparable. Moreover, the Adam--AdamW gap should be larger than
-the SGD--SGDW gap under matched training conditions.
+\paragraph{Coupling axis.}
+Does weight-decay coupling move ID geometry, especially under adaptive
+optimizers? If coupled and decoupled decay induce different update geometries,
+then the AdamW-to-Adam interpolation should move the ID geometry fingerprint
+while ID accuracy remains comparable. Moreover, the Adam--AdamW gap should be
+larger than the SGD--SGDW gap under matched training conditions.
 
-\paragraph{H2: detector gaps follow the geometry channel read by each detector family.}
-If an optimizer changes feature-norm dispersion, raw distance detectors should
-differ from their L2-normalized counterparts. If it changes covariance spectrum
-or conditioning, Mahalanobis and DDU-style Gaussian feature-density scores should
+\paragraph{Readout-channel sensitivity.}
+Do detector gaps follow the geometry channel read by each detector family? If an
+optimizer changes feature-norm dispersion, raw distance detectors should differ
+from their L2-normalized counterparts. If it changes covariance spectrum or
+conditioning, Mahalanobis and DDU-style Gaussian feature-density scores should
 respond to covariance controls. If it changes class-mean alignment, effective
 rank, or residual energy, angular and subspace diagnostics should be affected
 accordingly.
 
-\paragraph{H3: ID geometry can guide detector diagnostics before OOD validation.}
-If the ID geometry fingerprint captures detector-relevant structure, it should
-help recommend which detector family or diagnostic control is likely to be
-compatible with the trained representation. This is a diagnostic goal rather
-than a claim that ID geometry alone fully determines OOD performance.
+\paragraph{Geometry-aware diagnostics.}
+Can ID geometry guide detector diagnostics before OOD validation? If the ID
+geometry fingerprint captures detector-relevant structure, it should help
+recommend which detector family or diagnostic control is likely to be compatible
+with the trained representation. This is a diagnostic goal rather than a claim
+that ID geometry alone fully determines OOD performance.
 
-These hypotheses define the structure of Section~\ref{sec:experiments}. The
-goal is not to rank optimizers or detectors globally, but to test whether
+These questions define the structure of Section~\ref{sec:experiments}. The goal
+is not to rank optimizers or detectors globally, but to test whether
 optimizer-induced geometry predicts which detector readouts remain compatible. A
-more detailed hypothesis-to-experiment map is provided in
+more detailed question-to-experiment map is provided in
 Appendix~\ref{app:mechanistic-derivations}.
