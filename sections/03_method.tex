@@ -1,13 +1,12 @@
-This section develops the mechanism used in the rest of the paper. We do not
+This section defines the framework used in the rest of the paper. We do not
 attempt to prove full Neural Collapse convergence for deep networks. Existing
 work already shows that optimizer choice and weight-decay coupling can change
 Neural Collapse behavior \citep{zhao2026optimizer,loshchilov2019decoupled}. Our
-goal is different: we turn optimizer update rules into testable predictions about
-the penultimate feature geometry that OOD detector families read. The resulting
-framework connects three objects: optimization rules, detector-relevant geometry
-channels, and diagnostic controls.
+goal is narrower: we use optimizer update rules to identify which
+detector-relevant geometry channels should change, and then test whether OOD
+detector families respond according to the channels they read.
 
-\subsection{Setup and claim boundary}
+\subsection{Penultimate geometry fingerprint}
 \label{subsec:setup-claim-boundary}
 
 We consider a \(K\)-class classifier decomposed into a penultimate feature map
@@ -18,14 +17,12 @@ and a linear classifier,
 \end{equation}
 where \(h(x)\in\mathbb{R}^d\), \(W\in\mathbb{R}^{K\times d}\), and
 \(z(x)\in\mathbb{R}^K\). For ID training features, let \(\mu_c\) denote the
-class mean of class \(c\), let each feature be decomposed as
-\(h_i=\mu_{y_i}+\varepsilon_i\), and let \(\Sigma_c\) and \(\Sigma_W\) denote the
-class-conditional and pooled within-class covariances. The feature residuals
-\(\varepsilon_i\), their covariance, the class means, and the classifier weights
-are the quantities through which feature-based OOD detectors interact with a
-trained model.
+class mean of class \(c\), write each feature as
+\(h_i=\mu_{y_i}+\varepsilon_i\), and let \(\Sigma_c\) and \(\Sigma_W\) denote
+the class-conditional and pooled within-class covariances. These quantities are
+the representation-side objects read by feature-based OOD detectors.
 
-We summarize these quantities by a geometry fingerprint
+We summarize the trained representation by an ID geometry fingerprint
 \begin{equation}
     G(h,W)
     =
@@ -38,31 +35,23 @@ We summarize these quantities by a geometry fingerprint
     \big].
     \label{eq:geometry-fingerprint-section3}
 \end{equation}
-Here \(G_{\mathrm{NC}}\) contains Neural-Collapse-related quantities such as
-NC0--NC3 and classifier--feature alignment; \(G_{\mathrm{norm}}\) contains
-feature-norm statistics; \(G_{\mathrm{cov}}\) contains within-class dispersion,
-covariance spectra, anisotropy, condition number, and effective rank;
-\(G_{\mathrm{local}}\) contains local feature-bank neighborhood statistics; and
-\(G_{\mathrm{subspace}}\) contains PCA, residual, and class-mean-subspace
-structure.
+The components describe Neural-Collapse-related class structure, feature-norm
+statistics, covariance spectrum and conditioning, local feature-bank geometry,
+and principal or residual subspace structure. Full metric definitions are given
+in Appendix~\ref{app:geometry-metrics}.
 
-This section provides a mechanistic framework rather than a complete convergence
-theory. The analysis uses update-level and locally linearized arguments to
-identify which geometry channels should move under different optimizers.
-Section~\ref{sec:experiments} then tests these predictions across architectures,
-optimizers, detectors, and diagnostic controls. Full algebraic details are given
-in Appendix~\ref{app:mechanistic-derivations}.
+This fingerprint is not a claim that one scalar geometry metric explains all OOD
+behavior. It is a compact way to ask whether optimizer-induced changes in the ID
+representation are inherited by detector families that read different geometry
+channels.
 
 \subsection{Weight-decay coupling as a geometry intervention}
 \label{subsec:optimizer-update-geometry}
 
-We treat optimizer choice as a training-side intervention on the geometry in
-Eq.~\eqref{eq:geometry-fingerprint-section3}. The main optimizer families are
-SGD, SGDW, Adam, and AdamW. This set separates two axes that are often
-confounded: adaptive preconditioning and weight-decay coupling.
-
-For a fixed total weight decay \(\lambda_{\mathrm{total}}\), define an
-interpolation between coupled and decoupled decay:
+We treat optimizer choice as a training-side intervention on
+\(G(h,W)\). The main optimizer families are SGD, SGDW, Adam, and AdamW, which
+separate two axes: adaptive preconditioning and weight-decay coupling. For a
+fixed total weight decay \(\lambda_{\mathrm{total}}\), define the interpolation
 \begin{equation}
     \lambda_{\mathrm{coupled}}
     =
@@ -75,126 +64,67 @@ interpolation between coupled and decoupled decay:
     \gamma\in[0,1].
     \label{eq:coupled-decoupled-interpolation-section3}
 \end{equation}
-The coupled term is included in the gradient update, whereas the decoupled term
-is applied as a separate parameter shrinkage. In the Adam family, \(\gamma=0\)
-corresponds to AdamW and \(\gamma=1\) corresponds to Adam with coupled L2
-regularization.
+Here \(\gamma=0\) corresponds to AdamW and \(\gamma=1\) corresponds to Adam with
+coupled L2 regularization.
 
-The key distinction is whether the decay term is seen through the optimizer's
-adaptive geometry. With a diagonal adaptive preconditioner \(D_t\), the coupled
-Adam update has the approximate form
-\begin{equation}
-    \theta_{t+1}^{\mathrm{Adam}}
-    \approx
-    \theta_t-\eta_tD_t\bigl(\nabla_\theta\mathcal{L}(\theta_t)+\lambda\theta_t\bigr),
-    \label{eq:adam-coupled-preconditioned-section3}
-\end{equation}
-whereas the decoupled AdamW update has the approximate form
-\begin{equation}
-    \theta_{t+1}^{\mathrm{AdamW}}
-    \approx
-    (1-\eta_t\lambda)\theta_t-\eta_tD_t\nabla_\theta\mathcal{L}(\theta_t).
-    \label{eq:adamw-decoupled-preconditioned-section3}
-\end{equation}
-Thus Adam applies weight decay in the preconditioned geometry, while AdamW
-applies weight decay in raw parameter space. This difference can change
-direction-dependent contraction in the penultimate representation, affecting
-within-class dispersion, covariance eigenspectra, feature-norm statistics, and
-Neural-Collapse-related alignment even when ID accuracy is similar. The
-AdamW-to-Adam interpolation in Eq.~\eqref{eq:coupled-decoupled-interpolation-section3}
-therefore provides a controlled path for testing whether geometry and detector
-behavior move along the weight-decay-coupling axis.
+The key distinction is where the decay term acts. In coupled adaptive
+optimization, the regularization term enters the preconditioned update. In
+decoupled weight decay, the shrinkage is applied directly in parameter space.
+Thus two optimizers can use the same nominal weight decay and reach comparable
+ID accuracy, while inducing different direction-dependent contraction in the
+penultimate representation. This motivates the AdamW-to-Adam interpolation as a
+mechanism test: if coupling is a geometry intervention, then NC structure,
+feature norms, covariance spectra, and detector behavior should move along this
+axis. Algebraic details are provided in
+Appendix~\ref{app:mechanistic-derivations}.
 
-\subsection{Detector families as geometry readouts}
+\subsection{Detector readouts and diagnostic controls}
 \label{subsec:geometry-channels-detectors}
 
-Feature-based OOD detectors read different channels of the geometry in
-Eq.~\eqref{eq:geometry-fingerprint-section3}. Distance-based detectors read class
-centers and radial scale; density-based detectors read covariance and volume;
-neighborhood detectors read local feature-bank spacing; angular detectors read
-prototype or classifier directions; and subspace detectors read principal or
-residual feature directions. Table~\ref{tab:readout-map} summarizes this readout
-view.
+Feature-based OOD detectors are readouts of the geometry in
+Eq.~\eqref{eq:geometry-fingerprint-section3}. They are not interchangeable
+scoring rules: distance, density, neighborhood, angular, and subspace detectors
+depend on different aspects of the trained representation. Table~\ref{tab:readout-map}
+summarizes the readout view used throughout the experiments.
 
 \input{tables/tab_readout_map}
 
-This table is a framework map, not an empirical result. It clarifies why
-optimizer-induced geometry changes need not affect all detectors in the same
-direction. A representation can remain compatible with logit or angular readouts
-while becoming poorly matched to raw distance or covariance readouts. Conversely,
-a detector-side intervention can improve one family while leaving another
-unchanged because it removes only the geometry channel that the first family
-uses. Full score definitions and score-direction conventions are given in
-Appendix~\ref{app:detector-scores}.
+The diagnostic controls follow directly from this readout view. L2
+normalization removes the radial feature-norm channel. Tied, diagonal, and
+shrinkage covariance variants probe covariance estimation and conditioning. PCA
+projection and residual-subspace scores separate principal ID directions from
+residual directions. These controls are not proposed as new OOD detectors; they
+are interventions used to localize which geometry channel carries a detector
+gap. Full score definitions and implementation conventions are given in
+Appendices~\ref{app:detector-scores} and~\ref{app:diagnostic-interventions}.
 
-\subsection{Diagnostic controls}
-\label{subsec:diagnostic-recipe}
+\subsection{Empirical hypotheses}
+\label{subsec:empirical-hypotheses}
 
-The preceding readout view suggests that detector failures should be diagnosed
-by geometry channel, not by detector name alone. We therefore use three families
-of diagnostic controls.
+The framework leads to three empirical hypotheses.
 
-First, L2 normalization removes the radial feature-norm channel. If raw
-Mahalanobis or raw kNN degrades under one optimizer but recovers after L2
-normalization, the gap is likely carried by radial or norm-coupled geometry.
+\paragraph{H1: weight-decay coupling changes ID geometry, especially under adaptive optimizers.}
+If coupled and decoupled decay induce different update geometries, then the
+AdamW-to-Adam interpolation should move the ID geometry fingerprint while ID
+accuracy remains comparable. Moreover, the Adam--AdamW gap should be larger than
+the SGD--SGDW gap under matched training conditions.
 
-Second, covariance controls probe estimation and conditioning. Tied, diagonal,
-and shrinkage covariance variants test whether Gaussian feature-density or
-Mahalanobis-style failures arise from unstable covariance estimation,
-ill-conditioning, anisotropy, or broader representation mismatch.
+\paragraph{H2: detector gaps follow the geometry channel read by each detector family.}
+If an optimizer changes feature-norm dispersion, raw distance detectors should
+differ from their L2-normalized counterparts. If it changes covariance spectrum
+or conditioning, Mahalanobis and DDU-style Gaussian feature-density scores should
+respond to covariance controls. If it changes class-mean alignment, effective
+rank, or residual energy, angular and subspace diagnostics should be affected
+accordingly.
 
-Third, PCA and residual-subspace controls test whether detector gaps are carried
-by principal ID directions or residual directions. Projected features isolate the
-dominant ID subspace, while residual scores test whether samples occupy
-directions not captured by the ID class structure.
+\paragraph{H3: ID geometry can guide detector diagnostics before OOD validation.}
+If the ID geometry fingerprint captures detector-relevant structure, it should
+help recommend which detector family or diagnostic control is likely to be
+compatible with the trained representation. This is a diagnostic goal rather
+than a claim that ID geometry alone fully determines OOD performance.
 
-These controls are not proposed as new OOD detectors. They are diagnostic
-interventions used to localize the geometry channel responsible for a detector
-gap. Formal definitions are deferred to
-Appendix~\ref{app:diagnostic-interventions}.
-
-\subsection{Testable predictions}
-\label{subsec:testable-predictions}
-
-The framework yields six testable predictions for Section~\ref{sec:experiments}.
-
-\paragraph{Prediction 1: weight-decay coupling should move geometry.}
-In an AdamW-to-Adam interpolation, ID accuracy may remain comparable while
-NC-related metrics, feature-norm statistics, covariance spectra, and detector
-behavior move along the coupling axis.
-
-\paragraph{Prediction 2: adaptive coupling gaps should be larger than non-adaptive gaps.}
-Because coupled and decoupled decay are much closer under non-adaptive SGD than
-under adaptive preconditioning, the SGD--SGDW geometry gap should generally be
-smaller than the Adam--AdamW gap under comparable training conditions.
-
-\paragraph{Prediction 3: radial geometry should explain raw distance failures.}
-When optimizer choice increases feature-norm dispersion or class-dependent norm
-variation, raw Mahalanobis and raw kNN should degrade more than their
-L2-normalized counterparts. L2 recovery should be strongest in regimes where the
-raw gap is radial or norm-coupled.
-
-\paragraph{Prediction 4: covariance geometry should explain density failures.}
-When optimizer choice changes covariance spectra, anisotropy, condition number,
-or effective rank, Mahalanobis and DDU-style Gaussian density scores should
-change accordingly. Shrinkage, diagonalization, and PCA controls should reveal
-whether the failure is due to covariance estimation or a broader geometry
-mismatch.
-
-\paragraph{Prediction 5: subspace and prototype geometry should explain angular and NC-based detectors.}
-When class-mean geometry and classifier alignment are stable, angular and
-collapse-based readouts should remain compatible. When effective rank or
-residual energy changes, PCA-based and NECO-style residual diagnostics should be
-more sensitive.
-
-\paragraph{Prediction 6: ID geometry should inform detector diagnostics.}
-If the geometry fingerprint \(G(h,W)\) captures detector-relevant structure, then
-ID-only geometry measurements should help recommend which detector family or
-diagnostic control is likely to be compatible before using OOD validation data.
-
-\input{tables/tab_theory_prediction_map}
-
-Together, these predictions make the framework falsifiable. If optimizer choice
-changes accuracy but not the predicted geometry channels, the mechanism is not
-supported. If geometry changes but detector families do not respond according to
-their readout channel, the compatibility view is incomplete.
+These hypotheses define the structure of Section~\ref{sec:experiments}. The
+goal is not to rank optimizers or detectors globally, but to test whether
+optimizer-induced geometry predicts which detector readouts remain compatible. A
+more detailed hypothesis-to-experiment map is provided in
+Appendix~\ref{app:mechanistic-derivations}.

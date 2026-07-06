@@ -1,43 +1,26 @@
 \begin{table}[t]
-\caption{Theory-to-experiment map. Section~\ref{sec:method} predicts which
-geometry channels should move under optimizer interventions and which diagnostic
-experiments should reveal the affected detector family. The table is a
-prediction map, not a report of empirical results.}
+\caption{Detailed hypothesis-to-experiment map. This appendix table expands the
+three main-text hypotheses into concrete geometry measurements and diagnostic
+experiments. It is not a report of empirical results.}
 \label{tab:theory-prediction-map}
 \begin{center}
 \footnotesize
-\setlength{\tabcolsep}{3pt}
+\setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}p{0.23\textwidth}p{0.25\textwidth}p{0.25\textwidth}p{0.24\textwidth}@{}}
+\begin{tabular}{@{}p{0.24\textwidth}p{0.33\textwidth}p{0.33\textwidth}@{}}
 \toprule
-Mechanistic prediction & Geometry measurement & Detector implication & Experiment \\
+Hypothesis & Geometry test & Detector diagnostic \\
 \midrule
-Weight-decay coupling changes optimizer-induced geometry
-& NC0--NC3, feature norm, covariance spectrum, effective rank
-& Detector gaps should move along AdamW-to-Adam interpolation
-& Sweep \(\gamma\) with fixed total weight decay \\
-Adaptive coupling gap is larger than non-adaptive gap
-& SGD--SGDW vs. Adam--AdamW geometry distance
-& Adam/AdamW should produce larger detector-family shifts
-& Compare SGD, SGDW, Adam, AdamW under matched recipes \\
-Radial or norm-coupled geometry affects raw distances
-& Feature-norm mean/std, class-wise norm dispersion
-& Raw Mahalanobis/kNN degrade more than L2 variants
-& Raw vs. L2 Mahalanobis and kNN \\
-Covariance geometry affects precision and density readouts
-& WithinVar, eigenspectrum, condition number, anisotropy
-& Mahalanobis and DDU-style GMM change with covariance structure
-& Full, tied, diagonal, shrinkage covariance controls \\
-Subspace geometry affects residual and NC-based readouts
-& Effective rank, PCA explained variance, residual energy, NC alignment
-& CTM/NECO-style diagnostic targets respond to prototype or residual structure
-& PCA projection, residual scores, CTM/NECO-style readout checks \\
-Geometry fingerprint predicts detector compatibility
-& NC, norm, covariance, local-neighborhood, and subspace fingerprint
-& Detector shortlist can be informed before OOD validation
-& Cross-architecture stress test; transformer robustness settings \\
+H1: coupling changes ID geometry
+& AdamW-to-Adam interpolation; SGD--SGDW vs. Adam--AdamW geometry distance
+& detector-family gaps along the coupling axis \\
+H2: readout channels explain detector gaps
+& norm dispersion, covariance spectrum, effective rank, NC alignment, residual energy
+& raw vs. L2, covariance controls, PCA/residual, angular/prototype diagnostics \\
+H3: ID geometry guides diagnostics
+& ID-only fingerprint \(G(h,W)\) from training features
+& detector-family or control recommendation before OOD validation \\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{center}
 \end{table}

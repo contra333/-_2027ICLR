@@ -1,37 +1,32 @@
 \begin{table}[t]
-\caption{Detector families as geometry readouts. The entries summarize the
-framework only and do not report experimental results. CTM- and NECO-style rows
-are treated as angular, prototype, or subspace diagnostics unless their official
-score conventions are fixed in the corresponding experiment package.}
+\caption{Detector families as geometry readouts. The table is a framework map,
+not an empirical result. CTM- and NECO-style rows are treated as extended
+diagnostics unless their official score conventions are fixed in the
+corresponding experiment package.}
 \label{tab:readout-map}
 \begin{center}
 \footnotesize
-\setlength{\tabcolsep}{3pt}
-\renewcommand{\arraystretch}{1.15}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}@{}}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}p{0.23\textwidth}p{0.42\textwidth}p{0.27\textwidth}@{}}
 \toprule
-Detector family & Score form & Geometry channel & Diagnostic control \\
+Detector family & Geometry readout & Diagnostic control \\
 \midrule
-Mahalanobis
-& \(-\min_c (h-\mu_c)^\top \Sigma_W^{-1}(h-\mu_c)\)
-& class centers, within-class covariance, precision spectrum
-& post-hoc L2 normalization; covariance shrinkage \\
-DDU-style Gaussian density
-& \(\log\sum_c \pi_c \mathcal{N}(h\mid\mu_c,\widehat{\Sigma}_c)\)
-& Gaussian density, covariance volume, anisotropy, conditioning
-& tied, diagonal, and shrinkage covariance \\
-kNN
-& \(-d_k(h,\mathcal{B})\)
-& local feature-bank spacing, radial scale, angular neighborhoods
-& raw kNN vs. L2-kNN \\
-CTM-style angular diagnostic
-& \(\max_c \langle \widehat h,a_c\rangle\)
-& prototype or classifier directions, angular class separation
+Logit scores
+& output confidence, logit scale, and margin structure
+& compare against feature-side readouts \\
+Raw distance scores
+& class centers, Euclidean scale, radial feature norms, local spacing
+& raw vs. L2 Mahalanobis/kNN \\
+Gaussian feature density
+& covariance volume, precision spectrum, anisotropy, conditioning
+& tied, diagonal, shrinkage, and PCA covariance controls \\
+Angular/prototype scores
+& classifier or prototype directions, angular class separation, NC alignment
 & normalized features; prototype vs. classifier direction \\
-NECO-style collapse/residual diagnostic
-& \(\max_c\langle\widehat h,\widehat\mu_c\rangle\), \(-\|(I-P_M)h\|_2^2\)
-& collapse-like prototype geometry, residual energy outside class-mean subspace
-& prototype vs. residual readout; subspace dimension \\
+Subspace/residual scores
+& principal ID subspace, residual energy, effective rank
+& PCA dimension and residual readout checks \\
 \bottomrule
 \end{tabular}
 \end{center}
