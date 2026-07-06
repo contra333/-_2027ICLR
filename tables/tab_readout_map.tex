@@ -11,23 +11,23 @@ summarize the framework only; they do not report experimental results.}
 Detector family & Score form & Geometry channel & Diagnostic control \\
 \midrule
 Mahalanobis
-& \(-\min_c (f-\mu_c)^\top \Sigma_W^{-1}(f-\mu_c)\)
+& \(-\min_c (h-\mu_c)^\top \Sigma_W^{-1}(h-\mu_c)\)
 & class centers, within-class covariance, precision spectrum
 & post-hoc L2 normalization; covariance shrinkage \\
-Gaussian density
-& \(\log\sum_c \pi_c \mathcal{N}(f\mid\mu_c,\widehat{\Sigma}_c)\)
+DDU-style Gaussian density
+& \(\log\sum_c \pi_c \mathcal{N}(h\mid\mu_c,\widehat{\Sigma}_c)\)
 & Gaussian density, covariance volume, anisotropy, conditioning
 & tied, diagonal, and shrinkage covariance \\
 kNN
-& \(-d_k(f,\mathcal{B})\)
+& \(-d_k(h,\mathcal{B})\)
 & local feature-bank spacing, radial scale, angular neighborhoods
 & raw kNN vs. L2-kNN \\
-CTM angular readout
-& \(\max_c \langle \widehat f,a_c\rangle\)
+CTM-style angular diagnostic
+& \(\max_c \langle \widehat h,a_c\rangle\)
 & prototype or classifier directions, angular class separation
 & normalized features; prototype vs. classifier direction \\
-NECO collapse/residual readout
-& \(\max_c\langle\widehat f,\widehat\mu_c\rangle\), \(-\|(I-P_M)f\|_2^2\)
+NECO-style collapse/residual diagnostic
+& \(\max_c\langle\widehat h,\widehat\mu_c\rangle\), \(-\|(I-P_M)h\|_2^2\)
 & collapse-like prototype geometry, residual energy outside class-mean subspace
 & prototype vs. residual readout; subspace dimension \\
 \bottomrule
