@@ -1,80 +1,118 @@
-Deep neural networks are commonly selected and compared by their in-distribution
-(ID) accuracy. This criterion is natural for closed-set benchmarks, but it is not
-sufficient for deployment. A model used in an open environment must also handle
+Deep neural networks are commonly selected by in-distribution (ID) accuracy.
+This criterion is natural for closed-set recognition, but it is not sufficient
+for reliable deployment. In open environments, a model must also recognize
 ambiguous inputs, low-confidence cases, and samples that do not come from the
-training distribution. Reliable model selection therefore requires uncertainty
-signals that remain meaningful beyond average classification accuracy.
+training distribution. Out-of-distribution (OOD) detection addresses this problem
+by assigning a score that separates ID-like inputs from unreliable or shifted
+inputs. However, different OOD scores do not read the same part of a trained
+model. Logit-based scores such as maximum softmax probability (MSP), MaxLogit,
+and Energy read output confidence, logit scale, and margin structure
+\citep{hendrycks2017baseline,liu2020energy}. Feature-based detectors instead
+operate on the penultimate representation: Mahalanobis distance reads class
+means and covariance, kNN reads local feature-bank neighborhoods, DDU-style
+Gaussian density reads class-conditional density, and angular or
+collapse-based methods such as CTM and NECO read prototype, subspace, or
+neural-collapse-related structure
+\citep{lee2018simple,sun2022knn,mukhoti2021ddu,nguyen2023ctm,benammar2023neco}.
+Thus, OOD reliability is not determined only by the score formula; it also
+depends on the geometry of the representation on which the score is applied.
 
-OOD detection and uncertainty estimation provide such signals, but different
-detectors read different parts of a trained model. Logit-based scores such as
-maximum softmax probability, Energy, and MaxLogit read output confidence, logit
-scale, and margin structure \citep{hendrycks2017baseline,liu2020energy}.
-Feature-based detectors instead operate on the penultimate representation. For
-example, Mahalanobis, kNN, and Gaussian feature-density scores depend
-on feature-space structure such as class means, covariance, local neighborhoods,
-and density shape \citep{lee2018simple,sun2022knn,mukhoti2021ddu}. Thus, two
-models with comparable ID accuracy can expose different reliability behavior if
-their penultimate feature geometries differ.
+This observation raises a question that is largely hidden when optimizers are
+treated only as tools for improving accuracy. Optimizer choice can change the
+implicit bias of training and therefore the geometry of the learned
+representation. Recent work on Neural Collapse shows that optimizers and
+weight-decay coupling can substantially affect last-layer and penultimate
+geometry, with SGD, Adam, and AdamW exhibiting different collapse behavior
+\citep{papyan2020prevalence,zhao2026optimizer}. In particular, the distinction
+between coupled and decoupled weight decay is not merely an implementation
+detail: it can change the dynamics by which class means, classifier weights, and
+feature clouds organize during training \citep{loshchilov2019decoupled}. If
+feature-based OOD detectors depend on this geometry, then optimizer choice may
+affect OOD detectability even when ID accuracy is comparable.
 
-Optimizer choice is one mechanism that can create such differences. Optimizers
-are often treated as tools for improving training or validation performance, but
-recent neural-collapse analyses show that SGD, Adam, and AdamW can induce
-different last-layer and penultimate-feature geometries
-\citep{papyan2020prevalence,zhao2026optimizer}. Weight decay and its coupling to
-the optimizer update can also change the implicit bias of training
-\citep{loshchilov2019decoupled}. Therefore, optimizer choice may affect not only
-accuracy, but also the representation geometry on which feature-based
-uncertainty detectors rely.
-
-This creates a geometry--detector compatibility question. If an optimizer shapes
-penultimate geometry, and a detector family reads a particular geometric
-channel, then feature-based reliability depends on whether the
-optimizer-induced geometry is compatible with that detector readout. We study
-this optimizer-conditioned geometry compatibility in accuracy-controlled
-selected configurations of SGD, Adam, and AdamW. Figure~\ref{fig:optimizer-geometry-pipeline}
-summarizes the organizing pipeline: optimizer choice shapes penultimate
-geometry, detector families read different geometry channels, and the resulting
-readouts determine OOD and reliability behavior.
+We study this optimizer--geometry--detector interaction. Our central hypothesis
+is that optimizer choice induces a penultimate geometry fingerprint, and that
+OOD detector performance depends on whether this fingerprint is compatible with
+the geometry channel read by the detector. A raw distance-based detector may be
+sensitive to radial feature-norm variation; a covariance-based detector may be
+sensitive to anisotropy, conditioning, or finite-sample covariance estimation; a
+kNN detector may be sensitive to local feature-bank spacing; and an angular or
+neural-collapse-based detector may be sensitive to prototype directions,
+classifier alignment, or residual subspace energy. Under this view, there need
+not be a universally best optimizer or a universally best detector. The relevant
+object is the compatibility between the optimizer-induced representation and the
+detector-family readout. Figure~\ref{fig:optimizer-geometry-pipeline}
+summarizes this optimizer-conditioned geometry compatibility framing.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.98\linewidth]{figures/fig1_optimizer_geometry_pipeline.pdf}
-\caption{Optimizer-conditioned geometry compatibility. Optimizer choice can
-induce different penultimate feature geometries, and detector families read
-different geometric channels. Feature-based reliability therefore depends on
-the compatibility between the optimizer-induced geometry and the downstream
-detector readout.}
+\caption{Optimizer-conditioned geometry compatibility. Optimizer and
+weight-decay-coupling choices shape penultimate feature geometry, and detector
+families read different channels of that geometry: logit margins, distances,
+densities, angular prototypes, and neural-collapse or residual-subspace
+structure. Diagnostic controls such as L2 normalization, covariance shrinkage,
+and PCA-based projection localize radial, covariance, and subspace failure
+channels.}
 \label{fig:optimizer-geometry-pipeline}
 \end{figure}
 
-In our controlled CIFAR-10/WideResNet-28-10 study, this compatibility issue is
-visible even among selected configurations with comparable ID performance. The
-selected optimizers produce distinct geometry fingerprints, including differences
-in neural-collapse metrics, feature norms, within-class dispersion, and
-class-separation structure. These geometry differences are not read uniformly by
-all detector families. Logit-based scores can remain competitive, while raw
-Mahalanobis and kNN scores degrade in AdamW-selected regimes, especially in
-near-OOD settings. Post-hoc L2 normalization recovers much of this raw
-feature-detector gap, suggesting that radial or norm-coupled geometry is a major
-failure channel. In contrast, covariance-side controls show more limited and
-detector-dependent effects.
+We evaluate this view using SGD, SGDW, Adam, and AdamW as controlled optimizer
+families. This choice separates two axes that are often conflated: adaptivity
+and weight-decay coupling. SGD and SGDW compare coupled and decoupled decay in a
+non-adaptive optimizer, while Adam and AdamW compare the same distinction under
+coordinate-wise adaptive updates. To test whether the resulting geometry effects
+are architecture-specific or more general, our main study focuses on
+convolutional backbones with different inductive biases: VGG-style networks
+without residual connections, ResNet/WideResNet models with residual
+connections, and modern ConvNeXt backbones. Transformer-based architectures such
+as ViT and Swin are treated as additional robustness settings, where pretraining,
+normalization layers, and token-based representations may change how optimizer
+effects appear.
 
-This framing is intentionally not a detector benchmark and not an
-optimizer-good/bad story. We do not propose an additional scoring rule, and we do
-not argue that one optimizer is universally preferable for OOD detection.
-Instead, we ask which geometry channels are preserved, distorted, or masked by an
-optimizer, and which detector families inherit those changes.
+A key part of our study is to separate performance baselines from diagnostic
+controls. For kNN, L2-normalized features are often the natural deployment
+choice; for Mahalanobis-style scoring, recent work also shows that feature
+normalization can substantially improve performance. We therefore do not treat
+raw kNN or raw Mahalanobis as the preferred final detectors. Instead, we use
+them as diagnostic probes. Comparing raw and L2-normalized versions tells us
+whether an optimizer-induced detector gap is carried by radial or norm-coupled
+geometry. Similarly, covariance shrinkage, diagonal or tied covariance variants,
+and PCA-based projection controls are not introduced as new OOD detectors, but
+as interventions that localize whether failures arise from covariance
+conditioning, anisotropy, finite-sample estimation, nuisance dimensions, or
+subspace structure.
 
-Our contributions are:
+This framing differs from a standard OOD benchmark. Rather than asking which
+detector wins on average, we ask why detector rankings change when the
+representation changes. Representation-centric analyses have shown that OOD
+detector competitiveness depends on architecture, training paradigm, source
+dataset, and shift severity \citep{olivares2025systematic}. We focus on one
+specific and actionable source of such variation: optimizer choice. By measuring
+Neural Collapse metrics, feature-norm statistics, within-class dispersion, class
+separation, covariance spectra, effective rank, and local neighborhood
+structure, we connect optimizer-induced geometry changes to detector-family
+behavior.
+
+Our contributions are as follows.
 \begin{itemize}
-\item We formulate optimizer-conditioned geometry compatibility as a lens for
-feature-based uncertainty: optimizer choice can change the penultimate
-geometry that downstream detector families read.
-\item We show in accuracy-controlled selected configurations of SGD, Adam,
-and AdamW that comparable ID performance can coexist with distinct
-penultimate geometry fingerprints.
-\item We connect these geometry fingerprints to detector-family behavior,
-showing raw Mahalanobis/kNN degradation and L2-based recovery in
-AdamW-selected regimes, with shrinkage controls indicating more limited and
-detector-dependent covariance-side effects.
+    \item We formulate optimizer-conditioned geometry compatibility as a lens for
+    feature-based OOD detection: optimizer choice shapes the penultimate geometry
+    that downstream detector families read.
+    \item We systematically study SGD, SGDW, Adam, and AdamW across convolutional
+    architectures with different inductive biases, including non-residual,
+    residual, and modern CNN backbones, with transformer-based models used as
+    additional robustness settings.
+    \item We identify penultimate geometry fingerprints, including
+    neural-collapse metrics, feature norms, within-class dispersion, class
+    separation, covariance spectra, and local feature-bank structure, as
+    mediators between optimizer choice and detector behavior.
+    \item We use L2 normalization, covariance shrinkage, and PCA-based controls
+    to distinguish radial, covariance, and subspace failure channels, clarifying
+    when raw feature-detector failures reflect representation geometry rather
+    than detector formula alone.
+    \item We propose a geometry-aware diagnostic perspective for selecting or
+    stress-testing feature-based OOD detectors: evaluate an optimizer jointly
+    with the representation geometry it induces and the detector family that will
+    read that geometry.
 \end{itemize}

@@ -24,12 +24,17 @@ class FigureOnePipelineTest(unittest.TestCase):
         self.assertEqual(
             [stage["title"] for stage in stages],
             [
-                "Optimizer choice",
+                "Optimizer / WD coupling",
                 "Penultimate geometry",
                 "Detector readout",
                 "Reliability behavior",
             ],
         )
+        self.assertEqual(
+            stages[0]["items"],
+            ["SGD / SGDW", "Adam / AdamW", "coupled vs. decoupled WD"],
+        )
+        self.assertIn("NC / residual subspace", stages[2]["items"])
         self.assertEqual(len(stages), 4)
         self.assertTrue(all(stage["items"] for stage in stages))
         self.assertFalse(any("label" in stage for stage in stages))
@@ -42,9 +47,13 @@ class FigureOnePipelineTest(unittest.TestCase):
         for stage in stages:
             all_visible_lines.extend(str(stage["title"]).split())
             all_visible_lines.extend(str(stage["subtitle"]).split())
-            all_visible_lines.extend(str(item) for item in stage["items"])
+            all_visible_lines.extend(
+                line
+                for item in stage["items"]
+                for line in module._item_display(str(item)).splitlines()
+            )
 
-        self.assertLessEqual(max(len(line) for line in all_visible_lines), 16)
+        self.assertLessEqual(max(len(line) for line in all_visible_lines), 20)
         self.assertNotIn("Gaussian density", all_visible_lines)
 
     def test_figure_uses_iclr_like_serif_font(self):
@@ -68,9 +77,11 @@ class FigureOnePipelineTest(unittest.TestCase):
             svg_text = svg_path.read_text(encoding="utf-8")
             self.assertIn("<svg", svg_text)
             self.assertIn("Optimizer", svg_text)
-            self.assertIn("choice", svg_text)
+            self.assertIn("coupling", svg_text)
+            self.assertIn("decoupled WD", svg_text)
             self.assertIn("Detector", svg_text)
             self.assertIn("readout", svg_text)
+            self.assertIn("diagnostic recovery", svg_text)
 
     def test_generated_svg_follows_publication_figure_text_rules(self):
         module = load_module()

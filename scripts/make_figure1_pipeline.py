@@ -44,19 +44,19 @@ COLORS = {
 def get_pipeline_spec() -> list[dict[str, object]]:
     return [
         {
-            "title": "Optimizer choice",
-            "subtitle": "training",
-            "items": ["SGD", "Adam", "AdamW"],
+            "title": "Optimizer / WD coupling",
+            "subtitle": "training intervention",
+            "items": ["SGD / SGDW", "Adam / AdamW", "coupled vs. decoupled WD"],
         },
         {
             "title": "Penultimate geometry",
-            "subtitle": "feature geometry",
+            "subtitle": "feature fingerprint",
             "items": [
-                "NC structure",
-                "radial norm",
-                "covariance",
+                "NC metrics",
+                "feature norm",
+                "covariance spectrum",
                 "local density",
-                "ID subspace",
+                "subspace structure",
             ],
         },
         {
@@ -64,16 +64,16 @@ def get_pipeline_spec() -> list[dict[str, object]]:
             "subtitle": "score channel",
             "items": [
                 "logit margin",
-                "GMM density",
-                "kNN locality",
-                "angular align.",
-                "subspace align.",
+                "distance",
+                "density",
+                "angular prototype",
+                "NC / residual subspace",
             ],
         },
         {
             "title": "Reliability behavior",
             "subtitle": "OOD signal",
-            "items": ["AUROC gap", "FPR95", "calibration"],
+            "items": ["AUROC / FPR95", "detector ranking", "diagnostic recovery"],
         },
     ]
 
@@ -91,6 +91,13 @@ def _set_style() -> None:
             "axes.linewidth": 0.8,
         }
     )
+
+
+def _item_display(item: str) -> str:
+    return {
+        "coupled vs. decoupled WD": "coupled vs.\ndecoupled WD",
+        "NC / residual subspace": "NC / residual\nsubspace",
+    }.get(item, item)
 
 
 def _panel(
@@ -115,7 +122,7 @@ def _panel(
     ax.add_patch(panel)
 
     title_display = {
-        "Optimizer choice": "Optimizer\nchoice",
+        "Optimizer / WD coupling": "Optimizer / WD\ncoupling",
         "Penultimate geometry": "Penultimate\ngeometry",
         "Detector readout": "Detector\nreadout",
         "Reliability behavior": "Reliability\nbehavior",
@@ -173,11 +180,12 @@ def _panel(
         ax.text(
             text_x,
             yy,
-            item,
+            _item_display(item),
             ha="left",
             va="center",
             color=COLORS["ink"],
-            fontsize=7.2,
+            fontsize=7.0,
+            linespacing=0.9,
             zorder=4,
         )
 

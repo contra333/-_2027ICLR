@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-06-28T21:32:56.385975</dc:date>
+    <dc:date>2026-07-06T21:42:31.951692</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -35,7 +35,7 @@ L 86.54184 127.764
 L 86.54184 12.636 
 L 6.98544 12.636 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
     <path d="M 107.11008 127.764 
@@ -43,7 +43,7 @@ L 186.66648 127.764
 L 186.66648 12.636 
 L 107.11008 12.636 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_4">
     <path d="M 207.23472 127.764 
@@ -51,7 +51,7 @@ L 286.79112 127.764
 L 286.79112 12.636 
 L 207.23472 12.636 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_5">
     <path d="M 307.35936 127.764 
@@ -59,68 +59,68 @@ L 386.91576 127.764
 L 386.91576 12.636 
 L 307.35936 12.636 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #ffffff; stroke: #d7dce2; stroke-width: 0.8; stroke-linejoin: miter"/>
    </g>
    <g id="patch_6">
     <path d="M 93.196332 69.498 
 Q 96.823565 69.498 99.053255 69.498 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
     <path d="M 93.853255 66.898 
 L 99.053255 69.498 
 L 93.853255 72.098 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
    </g>
    <g id="patch_7">
     <path d="M 193.320972 69.498 
 Q 196.948205 69.498 199.177895 69.498 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
     <path d="M 193.977895 66.898 
 L 199.177895 69.498 
 L 193.977895 72.098 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
    </g>
    <g id="patch_8">
     <path d="M 293.445612 69.498 
 Q 297.072845 69.498 299.302535 69.498 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
     <path d="M 294.102535 66.898 
 L 299.302535 69.498 
 L 294.102535 72.098 
 z
-" clip-path="url(#p9f818acd78)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
+" clip-path="url(#p5ad415f14a)" style="fill: #a7adb8; stroke: #a7adb8; stroke-width: 1.25; stroke-linecap: round"/>
    </g>
    <g id="line2d_1">
     <path d="M 13.97088 56.862 
 L 79.5564 56.862 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
    </g>
    <g id="line2d_2">
     <path d="M 114.09552 56.862 
 L 179.68104 56.862 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
    </g>
    <g id="line2d_3">
     <path d="M 214.22016 56.862 
 L 279.80568 56.862 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
    </g>
    <g id="line2d_4">
     <path d="M 314.3448 56.862 
 L 379.93032 56.862 
-" clip-path="url(#p9f818acd78)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
+" clip-path="url(#p5ad415f14a)" style="fill: none; stroke: #e7e9ee; stroke-width: 0.7; stroke-linecap: square"/>
    </g>
    <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(13.97088 25.792847)">Optimizer</text>
-    <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(13.97088 34.342144)">choice</text>
+    <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(13.97088 25.792847)">Optimizer / WD</text>
+    <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(13.97088 33.56505)">coupling</text>
    </g>
    <g id="text_2">
-    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="13.97088" y="51.815" transform="rotate(-0 13.97088 51.815)">training</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="13.97088" y="51.815" transform="rotate(-0 13.97088 51.815)">training intervention</text>
    </g>
    <g id="PathCollection_1">
     <defs>
-     <path id="m6fa21e5d9a" d="M 0 1.322876 
+     <path id="m769dd3c13f" d="M 0 1.322876 
 C 0.350831 1.322876 0.68734 1.183489 0.935414 0.935414 
 C 1.183489 0.68734 1.322876 0.350831 1.322876 0 
 C 1.322876 -0.350831 1.183489 -0.68734 0.935414 -0.935414 
@@ -132,75 +132,76 @@ C -0.68734 1.183489 -0.350831 1.322876 0 1.322876
 z
 "/>
     </defs>
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="17.07552" y="68.094" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="17.07552" y="68.094" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_3">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="24.83712" y="69.4116" transform="rotate(-0 24.83712 69.4116)">SGD</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="24.83712" y="70.410563" transform="rotate(-0 24.83712 70.410563)">SGD / SGDW</text>
    </g>
    <g id="PathCollection_2">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="17.07552" y="79.326" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="17.07552" y="79.326" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_4">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="24.83712" y="80.6436" transform="rotate(-0 24.83712 80.6436)">Adam</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="24.83712" y="81.667172" transform="rotate(-0 24.83712 81.667172)">Adam / AdamW</text>
    </g>
    <g id="PathCollection_3">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="17.07552" y="90.558" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="17.07552" y="90.558" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_5">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="24.83712" y="91.8756" transform="rotate(-0 24.83712 91.8756)">AdamW</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(24.83712 89.038781)">coupled vs.</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(24.83712 95.338781)">decoupled WD</text>
    </g>
    <g id="text_6">
     <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(114.09552 26.566144)">Penultimate</text>
     <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(114.09552 33.318253)">geometry</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="114.09552" y="51.815" transform="rotate(-0 114.09552 51.815)">feature geometry</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="114.09552" y="51.815" transform="rotate(-0 114.09552 51.815)">feature fingerprint</text>
    </g>
    <g id="PathCollection_4">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="117.20016" y="68.094" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="117.20016" y="68.094" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_8">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="69.4116" transform="rotate(-0 124.96176 69.4116)">NC structure</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="70.435172" transform="rotate(-0 124.96176 70.435172)">NC metrics</text>
    </g>
    <g id="PathCollection_5">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="117.20016" y="79.326" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="117.20016" y="79.326" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_9">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="80.6436" transform="rotate(-0 124.96176 80.6436)">radial norm</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="81.681391" transform="rotate(-0 124.96176 81.681391)">feature norm</text>
    </g>
    <g id="PathCollection_6">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="117.20016" y="90.558" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="117.20016" y="90.558" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_10">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="91.8756" transform="rotate(-0 124.96176 91.8756)">covariance</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="92.188781" transform="rotate(-0 124.96176 92.188781)">covariance spectrum</text>
    </g>
    <g id="PathCollection_7">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="117.20016" y="101.79" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="117.20016" y="101.79" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_11">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="103.1076" transform="rotate(-0 124.96176 103.1076)">local density</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="103.4175" transform="rotate(-0 124.96176 103.4175)">local density</text>
    </g>
    <g id="PathCollection_8">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="117.20016" y="113.022" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="117.20016" y="113.022" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_12">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="114.3396" transform="rotate(-0 124.96176 114.3396)">ID subspace</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="124.96176" y="114.652781" transform="rotate(-0 124.96176 114.652781)">subspace structure</text>
    </g>
    <g id="text_13">
     <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(214.22016 26.505394)">Detector</text>
@@ -210,44 +211,45 @@ z
     <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="214.22016" y="51.815" transform="rotate(-0 214.22016 51.815)">score channel</text>
    </g>
    <g id="PathCollection_9">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="217.3248" y="68.094" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="217.3248" y="68.094" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_15">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="69.4116" transform="rotate(-0 225.0864 69.4116)">logit margin</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="69.7215" transform="rotate(-0 225.0864 69.7215)">logit margin</text>
    </g>
    <g id="PathCollection_10">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="217.3248" y="79.326" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="217.3248" y="79.326" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_16">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="80.6436" transform="rotate(-0 225.0864 80.6436)">GMM density</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="81.681391" transform="rotate(-0 225.0864 81.681391)">distance</text>
    </g>
    <g id="PathCollection_11">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="217.3248" y="90.558" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="217.3248" y="90.558" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_17">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="91.8756" transform="rotate(-0 225.0864 91.8756)">kNN locality</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="92.1855" transform="rotate(-0 225.0864 92.1855)">density</text>
    </g>
    <g id="PathCollection_12">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="217.3248" y="101.79" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="217.3248" y="101.79" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_18">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="103.1076" transform="rotate(-0 225.0864 103.1076)">angular align.</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="103.4175" transform="rotate(-0 225.0864 103.4175)">angular prototype</text>
    </g>
    <g id="PathCollection_13">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="217.3248" y="113.022" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="217.3248" y="113.022" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_19">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="225.0864" y="114.3396" transform="rotate(-0 225.0864 114.3396)">subspace align.</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(225.0864 112.213172)">NC / residual</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(225.0864 117.802781)">subspace</text>
    </g>
    <g id="text_20">
     <text style="font-weight: 700; font-size: 8.1px; font-family: 'Nimbus Roman'; fill: #20242a" transform="translate(314.3448 25.792847)">Reliability</text>
@@ -257,33 +259,33 @@ z
     <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #5c6470" x="314.3448" y="51.815" transform="rotate(-0 314.3448 51.815)">OOD signal</text>
    </g>
    <g id="PathCollection_14">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="317.44944" y="68.094" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="317.44944" y="68.094" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_22">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="69.4116" transform="rotate(-0 325.21104 69.4116)">AUROC gap</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="70.424781" transform="rotate(-0 325.21104 70.424781)">AUROC / FPR95</text>
    </g>
    <g id="PathCollection_15">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="317.44944" y="79.326" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="317.44944" y="79.326" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_23">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="80.661488" transform="rotate(-0 325.21104 80.661488)">FPR95</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="80.9535" transform="rotate(-0 325.21104 80.9535)">detector ranking</text>
    </g>
    <g id="PathCollection_16">
-    <g clip-path="url(#p9f818acd78)">
-     <use xlink:href="#m6fa21e5d9a" x="317.44944" y="90.558" style="fill: #8f96a3"/>
+    <g clip-path="url(#p5ad415f14a)">
+     <use xlink:href="#m769dd3c13f" x="317.44944" y="90.558" style="fill: #8f96a3"/>
     </g>
    </g>
    <g id="text_24">
-    <text style="font-size: 7.2px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="91.8756" transform="rotate(-0 325.21104 91.8756)">calibration</text>
+    <text style="font-size: 7px; font-family: 'Nimbus Roman'; text-anchor: start; fill: #20242a" x="325.21104" y="92.1855" transform="rotate(-0 325.21104 92.1855)">diagnostic recovery</text>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p9f818acd78">
+  <clipPath id="p5ad415f14a">
    <rect x="0" y="0" width="388.08" height="140.4"/>
   </clipPath>
  </defs>
