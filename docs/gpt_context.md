@@ -5,9 +5,9 @@ Use it as the first-read bundle for web ChatGPT review. Source files remain auth
 
 ## Snapshot
 
-- Generated at: 2026-07-06 06:57:19 UTC
+- Generated at: 2026-07-06 07:00:37 UTC
 - Git branch: main
-- Git commit: 995283d
+- Git commit: 7e879f4
 
 ## Git Status
 
@@ -16,7 +16,8 @@ Use it as the first-read bundle for web ChatGPT review. Source files remain auth
 ?? AGENTS.md
 ?? Makefile
 ?? README.md
-?? docs/
+?? docs/figure_guidelines.md
+?? docs/superpowers/
 ?? fancyhdr.sty
 ?? figures/
 ?? iclr2026_conference.bib
@@ -29,10 +30,11 @@ Use it as the first-read bundle for web ChatGPT review. Source files remain auth
 ?? notes/internal_todo_experiment_coverage.md
 ?? references.bib
 ?? results/
-?? scripts/
+?? scripts/make_figure1_pipeline.py
+?? scripts/make_main_experiment_figures.py
 ?? sections/
 ?? tables/
-?? tests/
+?? tests/test_figure1_pipeline.py
 ```
 
 ## Binary Artifact Index
