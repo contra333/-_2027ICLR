@@ -1,0 +1,21 @@
+\begin{table}[t]
+\caption{SYNTHETIC PLACEHOLDER -- DO NOT REPORT. Geometry-aware diagnostic
+selector. The rules and values are illustrative placeholders only.}
+\label{tab:dummy-geometry-selector}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.25\textwidth}p{0.26\textwidth}p{0.30\textwidth}p{0.10\textwidth}@{}}
+\toprule
+ID geometry signal & Suggested diagnostic & Expected compatible family & Dummy hit rate \\
+\midrule
+High norm dispersion & L2 normalization & L2-Mahalanobis, L2-kNN & 0.78 \\
+High covariance condition & Shrinkage / diagonal covariance & GMM, Mahalanobis & 0.71 \\
+Strong NC alignment & Angular / prototype readout & CTM-style, prototype cosine & 0.69 \\
+High residual energy & PCA / residual probe & NECO-style, PCA residual & 0.64 \\
+Mixed geometry profile & Evaluate multiple controls & No single-family recommendation & 0.52 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

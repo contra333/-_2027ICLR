@@ -1,0 +1,27 @@
+\begin{table}[t]
+\caption{SYNTHETIC PLACEHOLDER -- DO NOT REPORT as results. Experimental
+protocol matrix specifying the planned prediction-driven evaluation structure.}
+\label{tab:exp-protocol-matrix}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}p{0.18\textwidth}p{0.30\textwidth}p{0.42\textwidth}@{}}
+\toprule
+Component & Main setting & Purpose \\
+\midrule
+ID data & CIFAR-10; optional CIFAR-100 appendix & Controlled ID geometry measurement \\
+OOD data & CIFAR-100, TinyImageNet, SVHN, MNIST & Near/far detector response \\
+Architecture & VGG-style, ResNet/WideResNet, ConvNeXt & Inductive-bias robustness \\
+Appendix architecture & ViT, Swin & Transformer/pretraining robustness \\
+Optimizers & SGD, SGDW, Adam, AdamW & Adaptivity and weight-decay coupling \\
+Mechanism sweep & AdamW\(\rightarrow\)Adam interpolation & Coupling-axis test \\
+Logit scores & MSP, MaxLogit, Energy & Confidence/margin readouts \\
+Feature scores & Mahalanobis, kNN, DDU-style Gaussian feature-density / GMM & Distance, neighborhood, density readouts \\
+Diagnostics & L2, shrinkage, diagonal/tied covariance, PCA & Radial, covariance, and subspace channels \\
+Metrics & Accuracy, NLL, ECE, AUROC, AUPR-IN, FPR95 & ID quality and OOD separation \\
+Geometry & NC0--NC3, norm stats, eigenspectrum, effective rank & ID geometry fingerprint \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
