@@ -1,0 +1,36 @@
+\begin{table}[H]
+\caption{Feature-based detector families as geometry readouts. The entries
+summarize the framework only; they do not report experimental results.}
+\label{tab:readout-map}
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}>{\raggedright\arraybackslash}p{0.20\textwidth}@{}}
+\toprule
+Detector family & Score form & Geometry channel & Diagnostic control \\
+\midrule
+Mahalanobis
+& \(-\min_c (f-\mu_c)^\top \Sigma_W^{-1}(f-\mu_c)\)
+& class centers, within-class covariance, precision spectrum
+& post-hoc L2 normalization; covariance shrinkage \\
+Gaussian density
+& \(\log\sum_c \pi_c \mathcal{N}(f\mid\mu_c,\widehat{\Sigma}_c)\)
+& Gaussian density, covariance volume, anisotropy, conditioning
+& tied, diagonal, and shrinkage covariance \\
+kNN
+& \(-d_k(f,\mathcal{B})\)
+& local feature-bank spacing, radial scale, angular neighborhoods
+& raw kNN vs. L2-kNN \\
+CTM angular readout
+& \(\max_c \langle \widehat f,a_c\rangle\)
+& prototype or classifier directions, angular class separation
+& normalized features; prototype vs. classifier direction \\
+NECO collapse/residual readout
+& \(\max_c\langle\widehat f,\widehat\mu_c\rangle\), \(-\|(I-P_M)f\|_2^2\)
+& collapse-like prototype geometry, residual energy outside class-mean subspace
+& prototype vs. residual readout; subspace dimension \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

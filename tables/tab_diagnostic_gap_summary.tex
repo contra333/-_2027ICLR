@@ -1,0 +1,23 @@
+\begin{table}[h!]
+\caption{Example diagnostic gaps for AdamW, wd \(1{\times}10^{-4}\), relative to
+the SGD, wd \(5{\times}10^{-4}\), anchor on near-OOD AUROC. Values are paired
+seed mean $\pm$ standard deviation. The large reduction from raw to L2-normalized
+feature scores is descriptive evidence for a radial or norm-coupled failure
+channel, not a complete causal proof.}
+\label{tab:diagnostic-gap-summary}
+\begin{center}
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lcc>{\raggedright\arraybackslash}p{0.34\textwidth}@{}}
+\toprule
+Readout family & Raw gap & Diagnostic gap & Interpretation \\
+\midrule
+Logit detectors & \(+0.045 \pm 0.006\) & -- & Logit AUROC does not mirror the raw feature-density failures. \\
+Mahalanobis & \(-0.451 \pm 0.015\) & L2: \(-0.030 \pm 0.001\) & Most of the near-OOD raw gap disappears after removing feature norm scale. \\
+kNN & \(-0.335 \pm 0.035\) & L2: \(-0.013 \pm 0.004\) & Local-distance sensitivity is also strongly norm-coupled in this comparison. \\
+GMM & -- & shrinkage: \(-0.114 \pm 0.007\) & Shrinkage helps diagnose covariance conditioning, but does not fully close the gap. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

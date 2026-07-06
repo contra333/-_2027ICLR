@@ -1,0 +1,80 @@
+Deep neural networks are commonly selected and compared by their in-distribution
+(ID) accuracy. This criterion is natural for closed-set benchmarks, but it is not
+sufficient for deployment. A model used in an open environment must also handle
+ambiguous inputs, low-confidence cases, and samples that do not come from the
+training distribution. Reliable model selection therefore requires uncertainty
+signals that remain meaningful beyond average classification accuracy.
+
+OOD detection and uncertainty estimation provide such signals, but different
+detectors read different parts of a trained model. Logit-based scores such as
+maximum softmax probability, Energy, and MaxLogit read output confidence, logit
+scale, and margin structure \citep{hendrycks2017baseline,liu2020energy}.
+Feature-based detectors instead operate on the penultimate representation. For
+example, Mahalanobis, kNN, and Gaussian feature-density scores depend
+on feature-space structure such as class means, covariance, local neighborhoods,
+and density shape \citep{lee2018simple,sun2022knn,mukhoti2021ddu}. Thus, two
+models with comparable ID accuracy can expose different reliability behavior if
+their penultimate feature geometries differ.
+
+Optimizer choice is one mechanism that can create such differences. Optimizers
+are often treated as tools for improving training or validation performance, but
+recent neural-collapse analyses show that SGD, Adam, and AdamW can induce
+different last-layer and penultimate-feature geometries
+\citep{papyan2020prevalence,zhao2026optimizer}. Weight decay and its coupling to
+the optimizer update can also change the implicit bias of training
+\citep{loshchilov2019decoupled}. Therefore, optimizer choice may affect not only
+accuracy, but also the representation geometry on which feature-based
+uncertainty detectors rely.
+
+This creates a geometry--detector compatibility question. If an optimizer shapes
+penultimate geometry, and a detector family reads a particular geometric
+channel, then feature-based reliability depends on whether the
+optimizer-induced geometry is compatible with that detector readout. We study
+this optimizer-conditioned geometry compatibility in accuracy-controlled
+selected configurations of SGD, Adam, and AdamW. Figure~\ref{fig:optimizer-geometry-pipeline}
+summarizes the organizing pipeline: optimizer choice shapes penultimate
+geometry, detector families read different geometry channels, and the resulting
+readouts determine OOD and reliability behavior.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.98\linewidth]{figures/fig1_optimizer_geometry_pipeline.pdf}
+\caption{Optimizer-conditioned geometry compatibility. Optimizer choice can
+induce different penultimate feature geometries, and detector families read
+different geometric channels. Feature-based reliability therefore depends on
+the compatibility between the optimizer-induced geometry and the downstream
+detector readout.}
+\label{fig:optimizer-geometry-pipeline}
+\end{figure}
+
+In our controlled CIFAR-10/WideResNet-28-10 study, this compatibility issue is
+visible even among selected configurations with comparable ID performance. The
+selected optimizers produce distinct geometry fingerprints, including differences
+in neural-collapse metrics, feature norms, within-class dispersion, and
+class-separation structure. These geometry differences are not read uniformly by
+all detector families. Logit-based scores can remain competitive, while raw
+Mahalanobis and kNN scores degrade in AdamW-selected regimes, especially in
+near-OOD settings. Post-hoc L2 normalization recovers much of this raw
+feature-detector gap, suggesting that radial or norm-coupled geometry is a major
+failure channel. In contrast, covariance-side controls show more limited and
+detector-dependent effects.
+
+This framing is intentionally not a detector benchmark and not an
+optimizer-good/bad story. We do not propose an additional scoring rule, and we do
+not argue that one optimizer is universally preferable for OOD detection.
+Instead, we ask which geometry channels are preserved, distorted, or masked by an
+optimizer, and which detector families inherit those changes.
+
+Our contributions are:
+\begin{itemize}
+\item We formulate optimizer-conditioned geometry compatibility as a lens for
+feature-based uncertainty: optimizer choice can change the penultimate
+geometry that downstream detector families read.
+\item We show in accuracy-controlled selected configurations of SGD, Adam,
+and AdamW that comparable ID performance can coexist with distinct
+penultimate geometry fingerprints.
+\item We connect these geometry fingerprints to detector-family behavior,
+showing raw Mahalanobis/kNN degradation and L2-based recovery in
+AdamW-selected regimes, with shrinkage controls indicating more limited and
+detector-dependent covariance-side effects.
+\end{itemize}

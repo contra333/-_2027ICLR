@@ -1,0 +1,24 @@
+\begin{table}[h!]
+\caption{Selected optimizer configurations and ID metrics. Values are seed mean
+$\pm$ standard deviation over three seeds. The comparison is
+accuracy-controlled rather than strictly accuracy-matched; the SGD anchor retains
+the highest ID test accuracy.}
+\label{tab:selected-optimizer-configs}
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llccccccc@{}}
+\toprule
+Configuration & Optimizer & LR & WD & Val acc. (\%) & Test acc. (\%) & NLL & ECE (\%) & T-ECE (\%) \\
+\midrule
+SGD, wd \(5{\times}10^{-4}\) & SGD & 0.1 & 0.0005 & 96.31 $\pm$ 0.39 & 95.83 $\pm$ 0.16 & 0.205 $\pm$ 0.011 & 2.95 $\pm$ 0.11 & 0.85 $\pm$ 0.18 \\
+SGD, wd \(2{\times}10^{-4}\) & SGD & 0.1 & 0.0002 & 96.27 $\pm$ 0.15 & 95.58 $\pm$ 0.14 & 0.233 $\pm$ 0.003 & 3.21 $\pm$ 0.14 & 0.87 $\pm$ 0.11 \\
+Adam & Adam & 0.001 & 0.0001 & 95.21 $\pm$ 0.32 & 94.49 $\pm$ 0.10 & 0.285 $\pm$ 0.011 & 3.92 $\pm$ 0.06 & 0.66 $\pm$ 0.09 \\
+AdamW, wd \(1{\times}10^{-4}\) & AdamW & 0.005 & 0.0001 & 95.23 $\pm$ 0.09 & 94.47 $\pm$ 0.24 & 0.527 $\pm$ 0.005 & 4.65 $\pm$ 0.20 & 0.62 $\pm$ 0.15 \\
+AdamW, wd \(5{\times}10^{-4}\) & AdamW & 0.005 & 0.0005 & 95.06 $\pm$ 0.22 & 94.36 $\pm$ 0.02 & 0.526 $\pm$ 0.016 & 4.76 $\pm$ 0.05 & 0.60 $\pm$ 0.07 \\
+\bottomrule
+\end{tabular}}
+\end{center}
+\end{table}

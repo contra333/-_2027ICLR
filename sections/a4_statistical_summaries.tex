@@ -1,0 +1,90 @@
+This appendix describes the statistical summaries used to aggregate detector and
+geometry measurements. The main text focuses on optimizer-induced gaps, while
+the appendix reports seed variability, full detector tables, and secondary
+robustness summaries.
+
+\subsection{Seed Means and Standard Deviations}
+\label{app:seed-means-std}
+
+For each optimizer \(o\), detector \(m\), OOD dataset \(q\), and seed \(s\), we
+compute AUROC, AUPR-IN, and FPR95. Main tables report seed means and standard
+deviations. For a metric value \(A_{o,m,q,s}\), the seed mean is
+\[
+    \overline{A}_{o,m,q}
+    =
+    \frac{1}{S}\sum_{s=1}^{S}A_{o,m,q,s}.
+\]
+The same aggregation is used for ID accuracy, calibration metrics, and geometry
+metrics when seed-level values are available.
+
+\subsection{Paired Optimizer Gaps}
+\label{app:paired-optimizer-gaps}
+
+To isolate optimizer effects, we define paired detector gaps relative to the SGD
+reference under the same dataset, detector, and seed:
+\[
+    \Delta^{\mathrm{det}}_{o,m,q,s}
+    =
+    A_{o,m,q,s}
+    -
+    A_{\mathrm{SGD},m,q,s}.
+\]
+For selected configurations, we also report seed-averaged gaps:
+\[
+    \Delta^{\mathrm{det}}_{o,m,q}
+    =
+    \overline{A}_{o,m,q}
+    -
+    \overline{A}_{\mathrm{SGD},m,q}.
+\]
+For a geometry metric \(G_g\), the corresponding geometry gap is
+\[
+    \Delta^{\mathrm{geo}}_{o,g}
+    =
+    G_{o,g}
+    -
+    G_{\mathrm{SGD},g}.
+\]
+The purpose of this analysis is to test whether optimizer-induced geometry gaps
+move consistently with detector-family gaps.
+
+\subsection{Family-Level Rank Summaries}
+\label{app:family-rank-summaries}
+
+When several detectors perform similarly, a single winning detector can be
+misleading. Family-level rank summaries compare average ranks across
+logit-based, covariance-based, local-neighborhood, angular-alignment, and
+subspace detector families. When needed, a rank-based comparison can report
+detector families that are statistically competitive with the best score. This
+analysis is secondary; it prevents single-winner overinterpretation rather than
+serving as the main contribution.
+
+\subsection{Geometry--Detector Association Checks}
+\label{app:geometry-detector-association}
+
+As a secondary analysis, we can compare distances between optimizer geometry
+fingerprints and distances between detector response vectors. Let \(G_o\) denote
+the geometry vector for optimizer \(o\), and let \(R_o\) denote its detector
+response vector. We compute
+\[
+    D^{\mathrm{geo}}_{o,o'}
+    =
+    d(G_o,G_{o'}),
+    \qquad
+    D^{\mathrm{det}}_{o,o'}
+    =
+    d(R_o,R_{o'}).
+\]
+If the two distance matrices vary together, optimizers that produce similar
+geometry also tend to produce similar detector behavior. This is an association
+check, not a causal proof.
+
+\subsection{Interpretation Limits}
+\label{app:statistical-interpretation-limits}
+
+Family-level rank summaries and geometry--detector association checks are
+secondary analyses. They are used to avoid overinterpreting a single detector
+winner, not to establish a causal relationship between a geometry metric and
+detector performance. Causal interpretation still depends on controlled
+optimizer comparisons, diagnostic interventions, and additional robustness
+experiments.

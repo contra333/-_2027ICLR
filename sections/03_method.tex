@@ -1,0 +1,487 @@
+This section defines the mechanistic framework used to analyze how optimizer
+choice can affect feature-based uncertainty. We do not introduce a new OOD
+detector. Instead, we treat optimizer choice as an intervention on penultimate
+representation geometry, and we treat each feature-based detector family as a
+readout of a particular geometry channel. The resulting question is not which
+optimizer is universally better, but which optimizer-induced geometry is
+compatible with which downstream readout.
+
+% TODO: Optional method schematic: optimizer -> geometry fingerprint -> detector readout -> score ranking.
+
+Table~\ref{tab:readout-map} summarizes the detector families considered by this
+framework. The table is conceptual: it records which geometry channel each
+readout can be sensitive to and which diagnostic control helps localize that
+channel.
+
+\input{tables/tab_readout_map}
+
+\subsection{Optimizer-conditioned representation geometry}
+\label{subsec:optimizer-conditioned-geometry}
+
+Let \(o\) denote an optimizer or training rule. A classifier trained under
+optimizer \(o\) is written as
+\begin{equation}
+    z_o(x)=W_o f_o(x)+b_o,
+    \label{eq:classifier-decomposition}
+\end{equation}
+where \(f_o(x)\in\mathbb{R}^d\) is the penultimate feature,
+\(W_o\in\mathbb{R}^{K\times d}\) is the classifier weight matrix, and
+\(z_o(x)\in\mathbb{R}^K\) denotes the logits. Let
+\(\mathcal{D}_{\mathrm{tr}}\) be the ID training set and
+\(\mathcal{D}_c\subset\mathcal{D}_{\mathrm{tr}}\) be the subset of class \(c\).
+For each optimizer \(o\), we define the class mean and covariance in the
+penultimate feature space as
+\begin{equation}
+    \mu_{c,o}
+    =
+    \frac{1}{|\mathcal{D}_c|}
+    \sum_{(x_i,y_i)\in\mathcal{D}_c}
+    f_o(x_i),
+    \label{eq:class-mean}
+\end{equation}
+\begin{equation}
+    \Sigma_{c,o}
+    =
+    \frac{1}{|\mathcal{D}_c|-1}
+    \sum_{(x_i,y_i)\in\mathcal{D}_c}
+    \bigl(f_o(x_i)-\mu_{c,o}\bigr)
+    \bigl(f_o(x_i)-\mu_{c,o}\bigr)^\top.
+    \label{eq:class-covariance}
+\end{equation}
+When a detector uses a shared covariance estimate, we use the pooled
+within-class covariance
+\begin{equation}
+    \Sigma_{W,o}
+    =
+    \frac{1}{K}
+    \sum_{c=1}^{K}
+    \Sigma_{c,o}.
+    \label{eq:pooled-within-covariance}
+\end{equation}
+We also define the ID feature bank
+\begin{equation}
+    \mathcal{B}_o
+    =
+    \{f_o(x_i):(x_i,y_i)\in\mathcal{D}_{\mathrm{tr}}\},
+    \label{eq:id-feature-bank}
+\end{equation}
+which is used by neighborhood-based detectors.
+
+To obtain a controlled optimizer-side geometry intervention, we use an
+AdamW-to-Adam interpolation along the weight-decay coupling axis. For a fixed
+total weight decay \(\lambda_{\mathrm{total}}\), define
+\begin{equation}
+    \lambda_{\mathrm{coupled}}
+    =
+    \gamma\lambda_{\mathrm{total}},
+    \qquad
+    \lambda_{\mathrm{decoupled}}
+    =
+    (1-\gamma)\lambda_{\mathrm{total}},
+    \qquad
+    \gamma\in[0,1].
+    \label{eq:adamw-adam-interpolation}
+\end{equation}
+The coupled component is included in the gradient update, whereas the
+decoupled component is applied as a separate parameter shrinkage. Abstractly,
+for an optimizer family with preconditioning or momentum operator
+\(\mathcal{P}_o\), the update can be written as
+\begin{equation}
+    g_t^{(\gamma)}
+    =
+    \nabla_\theta \mathcal{L}(\theta_t)
+    +
+    \lambda_{\mathrm{coupled}}\theta_t,
+    \label{eq:optimizer-coupled-gradient}
+\end{equation}
+\begin{equation}
+    \theta_{t+1}
+    =
+    (1-\eta_t\lambda_{\mathrm{decoupled}})\theta_t
+    -
+    \eta_t\mathcal{P}_o(g_t^{(\gamma)}).
+    \label{eq:optimizer-interpolation-update}
+\end{equation}
+In the Adam family, \(\gamma=0\) corresponds to AdamW decoupled weight
+decay and \(\gamma=1\) corresponds to Adam coupled L2 regularization. We
+use this interpolation not to claim that all optimizer effects reduce to a
+single scalar, but to create a controlled path along which representation
+geometry can be compared while the detector pipeline is fixed.
+
+For each trained model, we summarize the penultimate representation by a
+geometry fingerprint
+\begin{equation}
+    G_o
+    =
+    \bigl[
+    G_o^{\mathrm{norm}},
+    G_o^{\mathrm{cov}},
+    G_o^{\mathrm{NC}},
+    G_o^{\mathrm{ang/sub}}
+    \bigr].
+    \label{eq:geometry-fingerprint}
+\end{equation}
+The norm component includes feature-norm statistics; the covariance component
+includes within-class dispersion, covariance spectrum, anisotropy,
+conditioning, and effective rank; the neural-collapse component includes
+neural-collapse measures of within-class collapse, class-mean geometry, and
+classifier--feature alignment; and the angular/subspace component describes
+prototype directions and residual feature directions. The role of
+Section~\ref{sec:experiments} is to test how these geometry components move
+under optimizer interventions and how detector families respond.
+
+\subsection{AUROC ranking and optimizer-induced score shifts}
+\label{subsec:ranking-score-shifts}
+
+All detector scores are oriented so that larger values indicate more ID-like
+inputs. For a score \(S\), OOD AUROC can be written as the probability that a
+random ID example receives a higher score than a random OOD example:
+\begin{equation}
+    \mathrm{AUROC}(S)
+    =
+    \mathbb{P}\!\left[
+    S(X_{\mathrm{ID}})
+    >
+    S(X_{\mathrm{OOD}})
+    \right]
+    +
+    \frac{1}{2}
+    \mathbb{P}\!\left[
+    S(X_{\mathrm{ID}})
+    =
+    S(X_{\mathrm{OOD}})
+    \right].
+    \label{eq:auroc-ranking}
+\end{equation}
+Thus, AUROC depends on ID/OOD score orderings rather than the absolute scale of
+the score. An optimizer-induced change in score magnitude is therefore not by
+itself a detector failure. It becomes detector-relevant only when it changes
+enough pairwise ID/OOD rankings.
+
+Let \(m\) index a detector family. Relative to a reference optimizer
+\(o_{\mathrm{ref}}\), we write the score under optimizer \(o\) as
+\begin{equation}
+    S_m^{(o)}(x)
+    =
+    S_m^{(o_{\mathrm{ref}})}(x)
+    +
+    \Delta_m^{(o)}(x),
+    \label{eq:optimizer-induced-score-shift}
+\end{equation}
+where \(\Delta_m^{(o)}(x)\) is the sample-dependent score shift induced by the
+optimizer-conditioned geometry. If the score shift were equivalent to a
+strictly increasing transformation of the reference score, the ranking would be
+preserved. In contrast, geometry changes can act differently on different
+samples. For an ID sample \(x\) and an OOD sample \(x'\) that are correctly
+ordered under the reference optimizer, a ranking flip occurs when
+\begin{equation}
+    \Delta_m^{(o)}(x')
+    -
+    \Delta_m^{(o)}(x)
+    >
+    S_m^{(o_{\mathrm{ref}})}(x)
+    -
+    S_m^{(o_{\mathrm{ref}})}(x').
+    \label{eq:ranking-flip-condition}
+\end{equation}
+This inequality is not a theorem or an additional detector objective. It only
+formalizes the ranking perspective used throughout the paper. The substantive
+question is how each feature-based detector produces the sample-dependent shift
+\(\Delta_m^{(o)}(x)\) from the geometry it reads.
+
+\subsection{Precision and density readouts}
+\label{subsec:precision-density-readouts}
+
+\paragraph{Mahalanobis readout.}
+Mahalanobis scoring reads class centers through a precision-weighted distance.
+Under optimizer \(o\), the score is
+\begin{equation}
+    S_{\mathrm{Maha}}^{(o)}(x)
+    =
+    -
+    \min_{c}
+    \bigl(f_o(x)-\mu_{c,o}\bigr)^\top
+    \Sigma_{W,o}^{-1}
+    \bigl(f_o(x)-\mu_{c,o}\bigr).
+    \label{eq:mahalanobis-score}
+\end{equation}
+This score depends on the location of class means, the spread of within-class
+features, and the covariance spectrum that determines the precision matrix
+\(\Sigma_{W,o}^{-1}\). If an optimizer changes within-class dispersion or
+expands particular covariance directions, the precision-weighted penalty can
+change along those directions. In the simplified case where the feature vector
+and class means are fixed and
+\(\Sigma_{W,o}\succeq\Sigma_{W,o_{\mathrm{ref}}}\), matrix inversion reverses
+the positive-semidefinite order:
+\begin{equation}
+    \Sigma_{W,o}^{-1}
+    \preceq
+    \Sigma_{W,o_{\mathrm{ref}}}^{-1}.
+    \label{eq:precision-order-reversal}
+\end{equation}
+Consequently, for any fixed residual \(f-\mu_c\),
+\begin{equation}
+    (f-\mu_c)^\top
+    \Sigma_{W,o}^{-1}
+    (f-\mu_c)
+    \le
+    (f-\mu_c)^\top
+    \Sigma_{W,o_{\mathrm{ref}}}^{-1}
+    (f-\mu_c).
+    \label{eq:precision-quadratic-order}
+\end{equation}
+This condition does not imply that Mahalanobis AUROC must improve or degrade.
+Rather, it identifies one detector-relevant channel: covariance changes can
+make samples appear closer or farther from class means under the
+precision-weighted metric. Because this shift is direction-dependent, samples
+aligned with affected covariance directions can receive different
+\(\Delta_m^{(o)}(x)\) values and can therefore alter rankings.
+
+\paragraph{Gaussian density readout.}
+We use Gaussian feature-density scores as post-hoc readouts of class
+density. The generic score is
+\begin{equation}
+    S_{\mathrm{GMM}}^{(o)}(x)
+    =
+    \log
+    \sum_{c=1}^{K}
+    \pi_c
+    \mathcal{N}
+    \bigl(
+    f_o(x)
+    \mid
+    \mu_{c,o},
+    \widehat{\Sigma}_{c,o}
+    \bigr).
+    \label{eq:gmm-score}
+\end{equation}
+For a fixed class component, the log density decomposes into a quadratic term
+and a covariance-volume term:
+\begin{equation}
+    \log
+    \mathcal{N}
+    (f\mid \mu_c,\Sigma_c)
+    =
+    -
+    \frac{1}{2}
+    (f-\mu_c)^\top
+    \Sigma_c^{-1}
+    (f-\mu_c)
+    -
+    \frac{1}{2}
+    \log|\Sigma_c|
+    +
+    \mathrm{const}.
+    \label{eq:gaussian-log-density-decomposition}
+\end{equation}
+The first term is a precision-weighted quadratic penalty, as in Mahalanobis
+scoring. The second term penalizes covariance volume. Gaussian density scores
+are therefore sensitive not only to how far a feature is from a class mean, but
+also to the estimated volume and conditioning of each class covariance.
+
+This makes the density readout richer, but also more delicate. Covariance
+expansion can reduce the quadratic penalty for some directions, while the
+log-determinant term penalizes larger covariance volume. Since the mixture
+score combines class components through a log-sum-exp, changes in covariance
+scale, anisotropy, class overlap, and component selection can all affect
+ID/OOD rankings. We therefore treat tied, diagonal, and shrinkage covariance
+variants as diagnostic density readouts rather than as a claim that a single
+Gaussian estimator fully captures the representation.
+
+\subsection{Neighborhood readouts}
+\label{subsec:neighborhood-readouts}
+
+kNN scoring reads the local spacing of the ID feature bank. Under optimizer
+\(o\), we define
+\begin{equation}
+    S_{\mathrm{kNN}}^{(o)}(x)
+    =
+    -
+    d_k
+    \bigl(
+    f_o(x),
+    \mathcal{B}_o
+    \bigr),
+    \label{eq:knn-score}
+\end{equation}
+where \(d_k(f,\mathcal{B}_o)\) is the Euclidean distance from \(f\) to its
+\(k\)-th nearest neighbor in the ID training feature bank. Unlike Mahalanobis
+and Gaussian density scores, kNN does not explicitly fit a covariance matrix.
+However, it remains sensitive to representation geometry because the ID feature
+bank itself changes with the optimizer.
+
+The raw Euclidean distance between a query feature \(f=ru\) and a bank feature
+\(f_i=r_i u_i\), with \(\|u\|_2=\|u_i\|_2=1\), satisfies
+\begin{equation}
+    \|f-f_i\|_2^2
+    =
+    r^2+r_i^2-2rr_i\langle u,u_i\rangle.
+    \label{eq:euclidean-radial-angular-decomposition}
+\end{equation}
+Thus, raw kNN mixes radial scale, angular similarity, and local feature
+density. If an optimizer changes feature-norm distributions or local cluster
+spacing, raw kNN scores can shift even when angular neighborhoods are similar.
+After L2 normalization,
+\begin{equation}
+    \|\widehat f-\widehat f_i\|_2^2
+    =
+    2
+    -
+    2\langle \widehat f,\widehat f_i\rangle,
+    \qquad
+    \widehat f=\frac{f}{\|f\|_2+\epsilon},
+    \label{eq:l2-angular-distance}
+\end{equation}
+so the distance becomes angular up to the normalization constant. Comparing raw
+kNN and L2-kNN therefore tests whether neighborhood-based detector behavior is
+driven by local density itself or by radial scale coupled to the feature bank.
+
+\subsection{Angular and collapse-based readouts}
+\label{subsec:angular-collapse-readouts}
+
+Precision, density, and neighborhood scores read distances or densities in raw
+feature space. Other feature-based detectors read angular prototype structure
+or neural-collapse structure. We include these readouts because optimizer
+choice can change class-mean directions, classifier alignment, and residual
+feature subspaces even when ID accuracy remains similar.
+
+\paragraph{CTM angular readout.}
+CTM scores read cosine similarity between a query feature and
+class-related directions. A generic angular readout can be written as
+\begin{equation}
+    S_{\mathrm{cos}}^{(o)}(x)
+    =
+    \max_c
+    \left\langle
+    \frac{f_o(x)}{\|f_o(x)\|_2+\epsilon},
+    a_{c,o}
+    \right\rangle,
+    \qquad
+    \|a_{c,o}\|_2=1,
+    \label{eq:ctm-cosine-readout}
+\end{equation}
+where \(a_{c,o}\) may be a normalized class prototype, a normalized classifier
+weight direction, or a detector-specific class direction. Because the score
+uses normalized features, it is less sensitive to global feature norm than raw
+Mahalanobis or raw kNN. It is instead sensitive to angular class separation,
+prototype stability, and classifier--feature alignment. If an optimizer changes
+the directions of class means or classifier weights, or weakens their
+alignment, angular readouts can change even when radial diagnostics show little
+movement.
+
+\paragraph{NECO collapse and residual readout.}
+NECO scores use neural-collapse structure to define prototype and
+residual signals. Let the centered class-mean matrix be
+\begin{equation}
+    M_o
+    =
+    \bigl[
+    \widetilde{\mu}_{1,o},
+    \ldots,
+    \widetilde{\mu}_{K,o}
+    \bigr],
+    \qquad
+    \widetilde{\mu}_{c,o}
+    =
+    \mu_{c,o}
+    -
+    \frac{1}{K}
+    \sum_{j=1}^{K}
+    \mu_{j,o}.
+    \label{eq:centered-class-mean-matrix}
+\end{equation}
+A prototype-alignment readout can be expressed as
+\begin{equation}
+    S_{\mathrm{proto}}^{(o)}(x)
+    =
+    \max_c
+    \left\langle
+    \frac{f_o(x)}{\|f_o(x)\|_2+\epsilon},
+    \frac{\widetilde{\mu}_{c,o}}
+    {\|\widetilde{\mu}_{c,o}\|_2+\epsilon}
+    \right\rangle.
+    \label{eq:neco-prototype-readout}
+\end{equation}
+A residual-subspace readout can be written as
+\begin{equation}
+    S_{\mathrm{res}}^{(o)}(x)
+    =
+    -
+    \left\|
+    (I-P_{M_o}) f_o(x)
+    \right\|_2^2,
+    \label{eq:neco-residual-readout}
+\end{equation}
+where \(P_{M_o}\) is the projection onto the span of the centered class means.
+The exact NECO implementation can combine these ingredients differently,
+but the relevant geometry channels are the same: within-class collapse,
+simplex-like class-mean structure, classifier--prototype self-duality, and
+residual energy outside the class-mean subspace.
+
+This readout family is important for our framework because it is not primarily
+a covariance estimator. It asks whether the representation has the
+collapse-like prototype geometry that prototype and residual scores require.
+Optimizers that preserve accuracy but alter NC1, NC2, NC3, or NC0 can therefore
+leave one detector family largely compatible while changing another.
+
+\subsection{Diagnostic controls and empirical link}
+\label{subsec:diagnostic-controls}
+
+The preceding subsections identify the geometry channels through which
+optimizer choice can affect feature-based OOD scores. The experiments use
+diagnostic controls to localize these channels; they are not presented as
+universal detector fixes.
+
+First, we use post-hoc L2 normalization,
+\begin{equation}
+    \widehat f_o(x)
+    =
+    \frac{f_o(x)}
+    {\|f_o(x)\|_2+\epsilon},
+    \label{eq:posthoc-l2-normalization}
+\end{equation}
+and recompute distance- and neighborhood-based scores. Recovery after L2
+normalization indicates that radial or feature-norm effects are an important
+part of the raw detector gap. Lack of recovery indicates that angular,
+covariance, local-density, or subspace structure remains detector-relevant.
+
+Second, for Gaussian density readouts we compare covariance estimators. In
+particular, the shrinkage covariance is
+\begin{equation}
+    \widehat{\Sigma}_{c,o,\alpha}
+    =
+    (1-\alpha)\widehat{\Sigma}_{c,o}
+    +
+    \alpha
+    \frac{\operatorname{tr}(\widehat{\Sigma}_{c,o})}{d}
+    I.
+    \label{eq:covariance-shrinkage}
+\end{equation}
+Improvement under shrinkage indicates sensitivity to covariance conditioning or
+finite-sample covariance estimation. Failure to recover under shrinkage
+suggests that the detector gap cannot be explained by covariance estimation
+alone.
+
+Third, we measure geometry and detector changes in parallel. For geometry
+metric \(g\), detector family \(m\), and OOD dataset or regime \(q\), the
+experiments summarize changes relative to a reference optimizer as
+\begin{equation}
+    \Delta G_{o,g}
+    =
+    G_{o,g}
+    -
+    G_{o_{\mathrm{ref}},g},
+    \qquad
+    \Delta A_{o,m,q}
+    =
+    A_{o,m,q}
+    -
+    A_{o_{\mathrm{ref}},m,q}.
+    \label{eq:delta-geometry-detector}
+\end{equation}
+Component-level correlations, profile associations, Mantel-style tests, and
+geometry--detector association summaries are reported in
+Section~\ref{sec:experiments} or the appendix as diagnostic evidence. They are
+not used as causal proofs. Their role is to test whether the geometry channels
+defined in this section move consistently with the detector-family behavior
+observed empirically.

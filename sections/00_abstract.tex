@@ -1,0 +1,25 @@
+Modern classifiers are often selected by in-distribution accuracy, yet
+downstream reliability can depend on geometric properties of the learned
+representation that accuracy does not reveal. This is especially important for
+feature-based uncertainty and out-of-distribution (OOD) detectors, which read
+distances, norms, covariances, and local neighborhoods in the penultimate
+feature space. We study whether optimizer choice preserves the geometry required
+by these detector families. Rather than proposing a new detector, we use SGD,
+Adam, and AdamW as controlled interventions on representation geometry and
+evaluate how their optimizer-induced feature profiles are read by logit-based
+and feature-based OOD scores. In accuracy-controlled selected configurations on
+CIFAR-10 with WideResNet-28-10, we find that models with comparable ID
+performance can exhibit distinct penultimate geometry fingerprints, including
+differences in neural-collapse metrics, feature norms, within-class dispersion,
+and class separation. These differences are not uniformly reflected in detector
+behavior: logit-based scores can remain competitive while raw Mahalanobis and
+kNN scores degrade substantially in AdamW-selected regimes. Post-hoc L2
+normalization recovers much of this raw feature-detector gap, indicating that
+radial or norm-coupled geometry is a major failure channel, while
+covariance-side controls show more limited and detector-dependent effects. Our
+results therefore do not support an optimizer-good/bad ranking. They support a
+geometry--detector compatibility view: optimization improvements may preserve,
+distort, or mask the representation geometry required by a downstream
+uncertainty estimator. This controlled study suggests that optimizer choice
+should be evaluated jointly with penultimate geometry and detector-family
+readout, not by ID accuracy alone.

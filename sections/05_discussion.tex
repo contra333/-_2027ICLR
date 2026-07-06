@@ -1,0 +1,101 @@
+\subsection{Compatibility, Not Optimizer Ranking}
+\label{subsec:compatibility-not-ranking}
+
+The results should not be read as a universal ranking of optimizers for
+feature-based uncertainty. The same optimizer-induced representation can be
+favorable for one detector family and unfavorable for another, because each
+family reads a different channel of the trained model. Logit-based scores read
+output confidence, logit scale, and margin structure. Raw Mahalanobis and kNN
+read distances, feature norms, covariance structure, and local neighborhoods in
+the penultimate feature space. Thus, an optimizer can produce a representation
+that remains compatible with logit readouts while becoming incompatible with raw
+feature-distance readouts.
+
+This distinction is most visible in the AdamW-selected regimes summarized by
+Figures~\ref{fig:detector-delta-auroc-heatmap} and
+\ref{fig:l2-diagnostic-recovery}. These configurations can remain competitive
+under logit-based scores, yet show large near-OOD gaps under raw Mahalanobis and
+raw kNN. This does not imply that AdamW is universally worse. Rather, it shows
+that improvements in optimization or ID performance do not automatically transfer
+to every downstream uncertainty readout. The relevant object is the compatibility
+between the geometry produced by the optimizer and the geometry read by the
+detector.
+
+This interpretation also clarifies the limitation of accuracy-only model
+selection. Models with comparable ID performance can differ in neural-collapse class
+structure, feature norms, within-class dispersion, and class separation, as
+shown in Figure~\ref{fig:geometry-fingerprint-heatmap}. These geometry
+fingerprints are then inherited differently by detector families. When
+feature-based uncertainty is used, optimizer choice should therefore be treated
+as a reliability-relevant design decision rather than a purely training-side
+detail.
+
+\subsection{What the Diagnostics Identify}
+\label{subsec:what-diagnostics-identify}
+
+The diagnostic interventions in this work are not proposed as new detectors or
+universal fixes. Their role is to identify which geometry channels are
+implicated in the observed detector gaps. L2 normalization removes the radial
+feature-norm channel before Mahalanobis or kNN scoring. Covariance shrinkage
+changes the conditioning of the covariance estimate and the precision weights
+used by inverse-covariance detectors.
+
+The clearest diagnostic result is the L2 recovery. In the AdamW-selected
+regimes, raw Mahalanobis and raw kNN degrade substantially on near-OOD datasets,
+whereas their L2-normalized counterparts move much closer to the SGD anchor.
+This pattern suggests that the raw feature-distance failure is not merely a
+generic loss of representation quality. It is strongly tied to a radial or
+norm-coupled geometry channel. Since uniform global scaling alone would preserve
+the Mahalanobis quadratic form when covariance is fitted consistently, the
+observed degradation points to non-uniform geometry changes, such as
+sample-dependent or class-dependent feature-norm shifts, direction-dependent
+spread, or local neighborhood distortion.
+
+Covariance shrinkage gives a different diagnostic signal. It can reduce
+inverse-covariance sensitivity and stabilize covariance-side estimation, but it
+does not fully remove the AdamW-selected feature-density gap in our results.
+This indicates that covariance conditioning is part of the picture, but not the
+only failure channel. Feature-based detector behavior is better understood as a
+multi-channel compatibility problem involving radial geometry, covariance
+spectra, class separation, and local density.
+
+The main lesson is therefore not that L2 normalization is the best detector. The
+lesson is that L2 recovery narrows the set of plausible failure channels. When a
+raw detector gap largely disappears after L2 normalization, radial or
+norm-coupled geometry is implicated. When a gap remains after covariance
+shrinkage, covariance-side correction alone is insufficient to explain the
+mismatch.
+
+\subsection{Limitations and Scope}
+\label{subsec:limitations-scope}
+
+This is a controlled selected-configuration study. The primary evidence is based
+on CIFAR-10, WideResNet-28-10, selected SGD/Adam/AdamW configurations, and three
+seeds. The conclusions should therefore not be interpreted as universal claims
+over all datasets, architectures, optimizers, or OOD regimes. The comparison is
+accuracy-controlled rather than a claim of exact ID-accuracy equivalence. The
+SGD anchor retains the highest ID test accuracy, so residual differences in ID
+accuracy or calibration may contribute to some detector behavior.
+
+The OOD coverage is also limited. CIFAR-100 and TinyImageNet provide useful
+near-OOD evaluations, while SVHN and MNIST serve more naturally as far or
+easy-far controls. Broader natural-image OOD datasets, CIFAR-100 as an ID
+setting, and denser local learning-rate/weight-decay grids would help separate
+optimizer-induced geometry effects from representation-quality effects more
+sharply.
+
+The detector coverage is intentionally focused. Our goal is not to introduce a
+new OOD score or to benchmark every detector family. The main evidence concerns
+logit-based scores, raw and L2-normalized feature-distance scores, and
+Gaussian feature-density controls. Angular and subspace-oriented readouts should
+be treated as extensions unless their implementation and score conventions are
+fixed and included in the same evaluation protocol.
+
+Finally, the geometry--detector link established here is diagnostic rather than
+a complete causal proof. The main figures show an aligned pattern:
+optimizer-selected configurations induce distinct geometry fingerprints,
+detector families respond differently to those fingerprints, and L2
+normalization reveals a radial or norm-coupled failure channel. We do not claim
+that any single geometry metric alone causes detector degradation. Stronger
+causal claims would require tighter ID-accuracy bands, additional architectures
+and datasets, and direct interventions that control specific geometry channels.

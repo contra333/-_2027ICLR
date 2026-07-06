@@ -1,0 +1,41 @@
+\begin{table}[t]
+\caption{Reported experimental coverage and planned extensions. Main-text claims
+use the reported CIFAR-10/WideResNet-28-10 selected-configuration setting;
+additional coverage is listed as robustness evidence for future versions.}
+\label{tab:experiment-inventory}
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth}>{\raggedright\arraybackslash}p{0.35\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{0.13\textwidth}@{}}
+\toprule
+Component & Reported coverage & Additional planned coverage & Role \\
+\midrule
+ID setting
+& CIFAR-10 with train/validation/test split metadata.
+& CIFAR-100 ID comparison.
+& Main setting; robustness extension \\
+Backbone
+& WideResNet-28-10 with dropout 0.3, evaluated at 350 epochs.
+& Additional backbones such as ResNet or VGG.
+& Main setting; appendix or future \\
+Optimizers
+& Five selected configurations: two SGD, one Adam, two AdamW; seeds 0, 1, 2.
+& Tighter accuracy matching and local LR/WD grids.
+& Main caveat \\
+OOD datasets
+& CIFAR-100 and TinyImageNet as near-OOD; SVHN and MNIST as far/easy-far controls.
+& Textures and Places365.
+& Main setting; coverage extension \\
+Detectors
+& MSP, MaxLogit, Energy, negative entropy, Mahalanobis, L2-Mahalanobis, kNN, L2-kNN, and GMM tied/diagonal/shrinkage scores.
+& CTM and NeCo probes once score conventions and implementations are fixed.
+& Main setting; planned probes \\
+Geometry
+& NC1, NC3 alignment, WithinVar, InterDist, feature-norm statistics, anisotropy, effective rank, clipped condition number, and raw covariance eigenspectra.
+& Local-density summaries and official subspace probes.
+& Main setting; planned diagnostics \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

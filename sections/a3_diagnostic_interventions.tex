@@ -1,0 +1,76 @@
+The interventions in this appendix are diagnostic controls rather than proposed
+universal fixes. Each intervention removes or stabilizes one geometry channel so
+that detector behavior can be interpreted more mechanistically.
+
+\subsection{L2 Normalization}
+\label{app:l2-normalization}
+
+Feature normalization removes radial scale:
+\[
+    \hat{f}_\theta(x)
+    =
+    \frac{f_\theta(x)}
+    {\|f_\theta(x)\|_2+\epsilon}.
+\]
+Raw and L2-normalized detectors are compared under the same optimizer, dataset,
+OOD split, and seed. If raw Mahalanobis or raw kNN performs poorly for one
+optimizer but recovers after L2 normalization, the failure includes a
+norm-driven component. If a gap remains after L2 normalization, radial scale is
+not sufficient to explain the detector behavior.
+
+\subsection{Covariance Shrinkage}
+\label{app:covariance-shrinkage}
+
+For class covariance \(\Sigma_c\), shrinkage uses
+\[
+    \Sigma_{c,\alpha}
+    =
+    (1-\alpha)\Sigma_c
+    +
+    \alpha\frac{\operatorname{tr}(\Sigma_c)}{d}I.
+\]
+This stabilizes inverse covariance by increasing small eigenvalues and pulling
+large eigenvalues toward the mean. Tied, diagonal, and shrinkage covariance
+variants are treated as diagnostic controls. If GMM or Mahalanobis scores
+recover after shrinkage, covariance estimation or covariance conditioning
+contributes to the detector behavior.
+
+\subsection{PCA Projection and Residual Diagnostics}
+\label{app:pca-projection-residual}
+
+PCA projection preserves the ID principal subspace:
+\[
+    \hat{f}_\theta(x)
+    =
+    PP^\top(f_\theta(x)-\mu)+\mu.
+\]
+A PCA reconstruction-error style score reads the residual component:
+\[
+    S_{\mathrm{PCARec}}(x)
+    =
+    -\|(I-PP^\top)(f_\theta(x)-\mu)\|_2.
+\]
+The negative sign follows the higher-is-ID-like convention. These diagnostics
+test whether optimizer-induced geometry differences concentrate inside the ID
+principal subspace or in residual directions. The PCA fitting split, retained
+dimension rule, and score direction should be fixed before reporting PCA or
+NeCo scores as main results.
+
+\subsection{Angular Alignment Probes}
+\label{app:angular-alignment-probes}
+
+CTM is an angular alignment probe because it removes feature norm and reads
+cosine similarity between classifier weights and features. It should be compared
+with NC3 classifier-mean alignment rather than interpreted as a generic
+feature-distance score. CTM is reported in the main text only when the official
+score convention and implementation are fixed for the experiment package.
+
+\subsection{Implementation Notes and Score Convention}
+\label{app:diagnostic-implementation-notes}
+
+Diagnostic controls should use the same training checkpoints, feature extraction
+layer, ID split, OOD datasets, and score direction convention as the corresponding
+raw detector. Manual post-hoc variants should be labeled explicitly as
+diagnostics. They should not be presented as faithful reproductions of methods
+whose original training recipe includes additional regularizers or architectural
+constraints.

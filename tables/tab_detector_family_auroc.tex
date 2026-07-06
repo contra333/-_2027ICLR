@@ -1,0 +1,30 @@
+\begin{table}[t]
+\caption{Detector-family AUROC under the reported OOD coverage. Entries are seed
+means averaged within the indicated OOD regime. Near-OOD uses CIFAR-100 and
+TinyImageNet; far/easy-far uses SVHN and MNIST.}
+\label{tab:detector-family-auroc}
+\begin{center}
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Configuration & Logit & Maha & Maha-L2 & kNN & kNN-L2 & GMM-shr. \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Near-OOD AUROC}} \\
+SGD, wd \(5{\times}10^{-4}\) & 0.855 & 0.867 & 0.886 & 0.903 & 0.903 & 0.907 \\
+SGD, wd \(2{\times}10^{-4}\) & 0.845 & 0.860 & 0.870 & 0.903 & 0.902 & 0.905 \\
+Adam & 0.900 & 0.568 & 0.728 & 0.849 & 0.881 & 0.804 \\
+AdamW, wd \(1{\times}10^{-4}\) & 0.900 & 0.416 & 0.856 & 0.568 & 0.890 & 0.793 \\
+AdamW, wd \(5{\times}10^{-4}\) & 0.901 & 0.418 & 0.855 & 0.590 & 0.888 & 0.796 \\
+\midrule
+\multicolumn{7}{@{}l}{\emph{Far/easy-far AUROC}} \\
+SGD, wd \(5{\times}10^{-4}\) & 0.939 & 0.974 & 0.984 & 0.937 & 0.955 & 0.957 \\
+SGD, wd \(2{\times}10^{-4}\) & 0.933 & 0.963 & 0.982 & 0.935 & 0.952 & 0.946 \\
+Adam & 0.920 & 0.635 & 0.917 & 0.881 & 0.911 & 0.737 \\
+AdamW, wd \(1{\times}10^{-4}\) & 0.922 & 0.541 & 0.988 & 0.674 & 0.988 & 0.758 \\
+AdamW, wd \(5{\times}10^{-4}\) & 0.900 & 0.610 & 0.992 & 0.762 & 0.991 & 0.782 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

@@ -1,0 +1,51 @@
+This appendix reports the experimental coverage and numerical tables supporting
+Section~\ref{sec:experiments}. The main text summarizes the controlled
+CIFAR-10/WideResNet-28-10 study, while this appendix records the run inventory,
+available detector families, OOD coverage, and full aggregate tables.
+
+\subsection{Reported Coverage and Result Inventory}
+\label{app:reported-coverage-inventory}
+
+Table~\ref{tab:experiment-inventory} summarizes the reported experimental
+coverage and planned extensions. The distinction is included for reproducibility:
+main-text claims use only the reported CIFAR-10/WideResNet-28-10 setting, while
+additional planned coverage is treated as future robustness evidence.
+
+\input{tables/tab_experiment_inventory}
+
+\subsection{Full Geometry Tables}
+\label{app:full-geometry-tables}
+
+The main text discusses standardized geometry fingerprints at the level of
+geometry channels. Table~\ref{tab:geometry-fingerprint} reports the corresponding
+numerical values for each selected optimizer configuration.
+
+\input{tables/tab_geometry_fingerprint}
+
+\subsection{Full OOD Results}
+\label{app:full-ood-results}
+
+The main text emphasizes optimizer-induced detector response gaps.
+Table~\ref{tab:detector-family-auroc} reports the aggregate AUROC values behind that
+discussion, averaged within the reported near-OOD and far/easy-far groups. All
+scores follow the higher-is-ID-like convention described in
+Appendix~\ref{app:score-direction-aggregation}.
+
+\input{tables/tab_detector_family_auroc}
+
+\subsection{Additional Tables}
+\label{app:additional-tables}
+
+Per-dataset AUROC, AUPR-IN, and FPR95 tables can be generated from the processed
+summary directory \texttt{results/processed/wrn350\_selected\_3seed\_20260612/}.
+The relevant source files are \texttt{ood\_by\_dataset\_long.csv},
+\texttt{mean\_std.csv}, and \texttt{paired\_delta.csv}.
+
+\subsection{Diagnostic Gap Summary}
+\label{app:diagnostic-gap-summary}
+
+Table~\ref{tab:diagnostic-gap-summary} reports paired diagnostic gaps for the
+AdamW, weight decay \(1{\times}10^{-4}\), selected configuration relative to the
+SGD anchor on near-OOD AUROC.
+
+\input{tables/tab_diagnostic_gap_summary}

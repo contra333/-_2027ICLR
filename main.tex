@@ -1,0 +1,80 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{url}
+
+\title{Optimizer-Conditioned Geometry for Feature-Based Uncertainty}
+
+% Keep the submission anonymous while \iclrfinalcopy is commented.
+\author{Anonymous Authors}
+
+% Uncomment only for the accepted camera-ready version.
+% \iclrfinalcopy
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+\input{sections/01_introduction}
+
+\section{Related Work}
+\label{sec:related-work}
+\input{sections/02_related_work}
+
+\section{Optimizer-Conditioned Geometry and Feature-Based Readouts}
+\label{sec:method}
+\input{sections/03_method}
+
+\section{Experiments}
+\label{sec:experiments}
+\input{sections/04_experiments}
+
+\section{Discussion}
+\label{sec:discussion}
+\input{sections/05_discussion}
+
+\section{Conclusion}
+\label{sec:conclusion}
+\input{sections/06_conclusion}
+
+\bibliography{references}
+\bibliographystyle{iclr2026_conference}
+
+\appendix
+\section{Full Geometry Metric Definitions}
+\label{app:geometry-metrics}
+\input{sections/a1_geometry_metrics}
+
+\section{Detector Score Definitions and Score Direction}
+\label{app:detector-scores}
+\input{sections/a2_detector_scores}
+
+\section{Diagnostic Intervention Details}
+\label{app:diagnostic-interventions}
+\input{sections/a3_diagnostic_interventions}
+
+\section{Statistical Summary Details}
+\label{app:statistical-summaries}
+\input{sections/a4_statistical_summaries}
+
+\section{Additional Experimental Details}
+\label{app:experimental-details}
+\input{sections/a1_experimental_details}
+
+\end{document}

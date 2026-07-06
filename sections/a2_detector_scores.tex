@@ -1,0 +1,123 @@
+All detector scores are converted to a higher-is-ID-like convention before
+computing AUROC, AUPR-IN, and FPR95. This appendix lists the score definitions
+used in the experiments and records whether each score is a faithful
+reproduction of an existing method or a diagnostic variant used to probe a
+geometry channel.
+
+\subsection{Logit-Based Scores}
+\label{app:logit-based-scores}
+
+Logit-based detectors read output confidence, logit scale, and margin structure.
+The maximum softmax probability score is
+\[
+    S_{\mathrm{MSP}}(x)
+    =
+    \max_c p_\theta(y=c\mid x).
+\]
+The Energy score is written in the higher-is-ID-like direction used in this
+paper:
+\[
+    S_{\mathrm{Energy}}(x)
+    =
+    T\log\sum_{c=1}^{K}\exp(z_c(x)/T).
+\]
+The MaxLogit score is
+\[
+    S_{\mathrm{MaxLogit}}(x)
+    =
+    \max_c z_c(x).
+\]
+When negative entropy is reported, it is also oriented so larger values are more
+ID-like.
+
+\subsection{Distance-Based Feature Scores}
+\label{app:distance-based-feature-scores}
+
+The Mahalanobis detector reads class means and tied covariance through a
+precision-weighted distance:
+\[
+    S_{\mathrm{Maha}}(x)
+    =
+    -\min_c
+    (f_\theta(x)-\mu_c)^\top
+    \Sigma_W^{-1}
+    (f_\theta(x)-\mu_c).
+\]
+The negative sign enforces the higher-is-ID-like score convention. A
+Mahalanobis-L2 variant applies the same score after normalizing features to unit
+norm.
+
+kNN detectors read local neighborhood distance in the ID training feature bank:
+\[
+    S_{\mathrm{kNN}}(x)
+    =
+    -d_k(f_\theta(x),\mathcal{F}_{\mathrm{tr}}),
+\]
+where \(d_k\) is the \(k\)-th nearest-neighbor distance. L2-kNN applies the same
+score after feature normalization, allowing us to test whether the
+local-distance detector depends on radial scale.
+
+\subsection{Gaussian Feature-Density Scores}
+\label{app:gaussian-feature-density-scores}
+
+Gaussian feature-density detectors score a feature by a
+class-conditional mixture likelihood:
+\[
+    S_{\mathrm{GMM}}(x)
+    =
+    \log \sum_{c=1}^{K}
+    \pi_c
+    \mathcal{N}(f_\theta(x)\mid \mu_c,\Sigma_c).
+\]
+We distinguish tied, diagonal, and shrinkage covariance variants as diagnostic
+controls for covariance estimation and covariance conditioning.
+
+We use Gaussian feature-density score to refer to the density scoring component
+inspired by DDU. We do not claim to reproduce
+the full original DDU training recipe unless spectral normalization and the
+associated training protocol are explicitly used. This distinction is important
+because spectral normalization is itself a training-time geometric regularizer
+and can modify the optimizer-induced geometry that this paper aims to measure.
+
+\subsection{Prototype, Angular, and Subspace Scores}
+\label{app:prototype-angular-subspace-scores}
+
+The reported results include NCC, prototype-cosine, and ViM diagnostics.
+These are useful representation diagnostics but should not be relabeled as CTM
+or NeCo.
+
+CTM uses cosine similarity between features and classifier weights:
+\[
+    S_{\mathrm{CTM}}(x)
+    =
+    \max_c \cos(w_c,f_\theta(x))
+    =
+    \max_c
+    \frac{w_c^\top f_\theta(x)}
+    {\|w_c\|_2\|f_\theta(x)\|_2}.
+\]
+CTM reads angular alignment rather than feature norm and is directly connected
+to NC3 self-duality between classifier weights and class means. In this
+draft, CTM is a planned probe rather than an available main result.
+
+NeCo uses the relationship between test features and the principal ID subspace.
+With \(P\in\mathbb{R}^{d\times r}\) denoting the matrix of top ID principal
+directions, the normalized projection score is
+\[
+    S_{\mathrm{NeCo}}(x)
+    =
+    \frac{\|P^\top f_\theta(x)\|_2}
+    {\|f_\theta(x)\|_2}.
+\]
+When using NeCo, we distinguish the official score and fixed PCA configuration
+from project-specific simplified variants. Temporary simplified scores are not
+used as main results unless their formula, dimension, direction, and
+normalization are fixed.
+
+\subsection{Score Direction and Aggregation Convention}
+\label{app:score-direction-aggregation}
+
+All scores are oriented so larger values indicate more ID-like inputs before
+AUROC, AUPR-IN, and FPR95 are computed. Aggregated near/far tables average over
+the OOD datasets in the corresponding group after applying this score direction
+convention.

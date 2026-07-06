@@ -1,0 +1,85 @@
+\subsection{Optimizer-Induced Representation Geometry}
+\label{subsec:optimizer-geometry}
+
+Neural collapse provides a language for describing the geometry that emerges in
+the final stages of supervised training \citep{papyan2020prevalence}. It
+characterizes how penultimate features, class means, and classifier weights can
+organize into highly structured configurations. These geometric properties go
+beyond accuracy: two classifiers can have similar ID performance while differing
+in feature compactness, class separation, classifier-feature alignment, and
+last-layer symmetry.
+
+Recent work suggests that this geometry is not optimizer invariant.
+\citet{zhao2026optimizer} show that SGD, Adam, and AdamW can differ in the
+degree to which neural-collapse structure emerges. In particular, the coupling
+or decoupling of weight decay changes the training dynamics and implicit bias of
+adaptive optimizers \citep{loshchilov2019decoupled}. Our work builds on this
+optimizer-to-geometry view, but studies the next step: how optimizer-induced
+geometry differences are inherited by downstream uncertainty and OOD detector
+families.
+
+\subsection{Feature-Based Uncertainty and OOD Detection}
+\label{subsec:feature-based-uncertainty}
+
+OOD detection methods assign scores intended to separate ID-like inputs from
+unreliable or out-of-distribution inputs. Logit-based scores such as MSP
+\citep{hendrycks2017baseline}, MaxLogit, and Energy \citep{liu2020energy} read
+output confidence, logit scale, and margin structure. They provide a useful
+output-level view of reliability, but they do not directly model penultimate
+feature geometry.
+
+Feature-based detectors instead operate on the representation before the
+classifier head. Mahalanobis distance uses class means and covariance estimates
+\citep{lee2018simple}; kNN uses distances to a training feature bank
+\citep{sun2022knn}; and Gaussian feature-density scores use
+class-conditional density estimates \citep{mukhoti2021ddu}. These detectors are
+therefore sensitive to the geometry produced by training, including feature
+norms, within-class dispersion, covariance conditioning, and local neighborhood
+structure.
+
+We use Gaussian feature-density scores as post-hoc density readouts. The
+original DDU recipe is not merely Gaussian fitting on arbitrary features; it also
+uses architectural and spectral-normalization choices that regularize the
+feature extractor. In our main analysis, the Gaussian density score is used as a
+post-hoc feature readout so that spectral normalization does not become an
+additional training-time geometric regularizer. Tied, diagonal, and shrinkage
+covariance variants are treated as diagnostic controls rather than new detector
+proposals.
+
+\subsection{Representation-Centric Detector Analysis}
+\label{subsec:representation-centric-ood}
+
+Representation-centric OOD analysis emphasizes that detector rankings are not
+fixed properties of detector formulas. They can change with architecture,
+training regime, source dataset, representation geometry, and OOD severity
+\citep{olivares2025systematic}. This perspective is important for our setting
+because the same detector score can behave differently when the optimizer changes
+the feature distribution on which the score operates.
+
+This view also motivates considering detector families as geometry readouts
+rather than as isolated scoring rules. Distance- and density-based scores read
+class centers, covariance, and local feature neighborhoods; logit-based scores
+read output confidence and margin structure; angular or subspace-oriented scores
+such as CTM and NeCo motivate additional readout channels
+\citep{nguyen2023ctm,benammar2023neco}. In this paper, however, CTM- and
+NeCo scores are used primarily to motivate angular and subspace diagnostics;
+we do not treat them as core empirical baselines unless their implementation and
+score convention are explicitly fixed.
+
+\subsection{Positioning of Our Work}
+\label{subsec:positioning}
+
+Prior work provides the pieces of the argument: optimizer studies show that
+training choices can shape last-layer geometry, feature-based OOD methods rely
+on penultimate representations, and representation-centric analyses show that
+detector behavior depends on the learned representation. These threads have not
+yet been fully connected around optimizer choice.
+
+We study this connection directly by treating SGD, Adam, and AdamW as
+optimizer-induced geometry interventions and asking how their learned
+representations interact with detector-family readouts. The contribution is not
+another OOD scoring rule or a large-scale detector benchmark. It is an
+optimizer-conditioned geometry diagnosis. We use diagnostic controls such as L2
+normalization and covariance shrinkage to probe radial and covariance channels,
+and we interpret detector behavior through the compatibility between the
+geometry produced by an optimizer and the geometry read by a detector family.

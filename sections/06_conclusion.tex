@@ -1,0 +1,19 @@
+We studied optimizer choice as a geometry intervention for feature-based
+uncertainty. In an accuracy-controlled selected-configuration study with SGD,
+Adam, and AdamW, we find that comparable ID performance can hide substantial
+differences in penultimate representation geometry and detector-family behavior.
+Selected optimizers induce different fingerprints in neural-collapse geometry, feature
+norms, within-class dispersion, and class separation, and detector families read
+these fingerprints differently.
+
+The clearest example is the AdamW-selected raw-distance split. These
+configurations can remain competitive under logit-based readouts while showing
+large near-OOD gaps under raw Mahalanobis and kNN. L2 normalization recovers much
+of this gap, implicating a radial or norm-coupled failure channel, whereas
+covariance shrinkage has a more limited and detector-dependent effect. These
+results support a compatibility view rather than an optimizer-good/bad ranking.
+
+The key lesson is that optimizer, penultimate representation geometry, and
+detector readout should be evaluated jointly. Feature-based uncertainty should
+therefore be evaluated as a geometry--detector compatibility problem, not as an
+accuracy-only model-selection problem.

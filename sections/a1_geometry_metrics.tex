@@ -1,0 +1,117 @@
+This appendix gives the full definitions of the geometry metrics used in the
+main text. The main paper groups these metrics by geometry channel: class
+structure, radial norm geometry, covariance spectrum, local density, and
+subspace structure. These metrics are not treated as competing explanations in
+isolation; they are complementary fingerprints of the penultimate
+representation.
+
+\subsection{Class Structure and Neural Collapse Metrics}
+\label{app:class-structure-nc}
+
+Let \(\mu_c\) denote the class mean of ID training features and let
+\[
+    \bar{\mu}
+    =
+    \frac{1}{K}\sum_{c=1}^{K}\mu_c,
+    \qquad
+    \tilde{\mu}_c
+    =
+    \mu_c-\bar{\mu}.
+\]
+For class \(c\), let \(\Sigma_c\) be the class covariance and let
+\[
+    \Sigma_W
+    =
+    \frac{1}{K}\sum_{c=1}^{K}\Sigma_c
+\]
+be the pooled within-class covariance. The between-class covariance is
+\[
+    \Sigma_B
+    =
+    \frac{1}{K}\sum_{c=1}^{K}
+    \tilde{\mu}_c \tilde{\mu}_c^\top .
+\]
+A standard NC1-style diagnostic is
+\[
+    \mathrm{NC1}
+    =
+    \frac{1}{K}\operatorname{tr}
+    \left(\Sigma_W \Sigma_B^\dagger\right),
+\]
+where \(\dagger\) denotes the Moore--Penrose pseudoinverse. Smaller values
+indicate stronger within-class collapse relative to between-class variation.
+
+NC2 measures the angular structure of the centered class means
+\(\{\tilde{\mu}_c\}_{c=1}^K\), typically by comparing their normalized Gram
+matrix to the simplex ETF target. NC3 measures the alignment between classifier
+weights \(w_c\) and centered class means \(\tilde{\mu}_c\). This is the class
+structure channel most directly connected to CTM classifier-feature cosine
+scores. We also report direct summaries such as WithinVar, the average
+within-class dispersion, and InterDist, the average distance between class
+means.
+
+\subsection{Radial Norm Statistics}
+\label{app:radial-norm-statistics}
+
+We decompose each feature into norm and direction:
+\[
+    f_\theta(x)=r(x)u(x),
+    \qquad
+    r(x)=\|f_\theta(x)\|_2,
+    \qquad
+    \|u(x)\|_2=1.
+\]
+We measure the mean, standard deviation, quantiles, and class-wise dispersion of
+\(r(x)\). These statistics test whether an optimizer changes feature magnitude
+globally, by class, or by sample. Radial geometry can affect MaxLogit, Energy,
+Mahalanobis, kNN, and GMM scores. Cosine-based scores such as CTM are
+invariant to feature norm, and NeCo projection ratios normalize by the
+feature norm.
+
+\subsection{Covariance Spectrum and Conditioning}
+\label{app:covariance-spectrum-conditioning}
+
+For each class covariance, we consider the eigendecomposition
+\[
+    \Sigma_c
+    =
+    U_c
+    \operatorname{diag}(\lambda_{c,1},\ldots,\lambda_{c,d})
+    U_c^\top .
+\]
+We summarize the covariance spectrum by trace, leading eigenvalue, anisotropy,
+effective rank, condition number, and cumulative explained variance. These
+metrics test whether an optimizer spreads features unevenly across directions,
+creates ill-conditioned covariance estimates, or changes the stability of
+inverse-covariance detectors.
+
+\subsection{Local Density Diagnostics}
+\label{app:local-density-diagnostics}
+
+kNN detectors do not assume a Gaussian covariance model. They read local
+neighborhood spacing in the ID feature bank. Let
+\[
+    d_k(f_\theta(x),\mathcal{F}_{\mathrm{tr}})
+\]
+denote the distance from \(f_\theta(x)\) to its \(k\)-th nearest neighbor in the
+training feature bank \(\mathcal{F}_{\mathrm{tr}}\). We compare the
+distributions of this distance for ID and OOD samples. When feature labels are
+available, we can additionally separate same-class and cross-class
+nearest-neighbor distances for ID data. This reveals whether an optimizer
+changes within-class local density or boundary-neighborhood geometry.
+
+\subsection{Subspace Diagnostics}
+\label{app:subspace-diagnostics}
+
+Subspace-aware scores such as NeCo and PCA reconstruction error read whether a
+feature lies in the principal ID subspace. Let \(P\in\mathbb{R}^{d\times r}\)
+contain the top \(r\) principal directions of the ID training features. Then
+\(PP^\top\) is the projection matrix onto the selected ID subspace. We measure
+retained dimension, explained variance, projection norm, and residual norm:
+\[
+    \|P^\top f_\theta(x)\|_2,
+    \qquad
+    \|(I-PP^\top)f_\theta(x)\|_2.
+\]
+These quantities test whether an optimizer keeps ID features in a compact,
+task-relevant subspace or spreads them into residual directions.
